@@ -81,8 +81,8 @@
                   "127.0.0.1",
                   "gdckatrisarai.ac.in",
                   "*.gdckatrisarai.ac.in",
-                  "katrisarai-website.pages.dev",
-                  "*.katrisarai-website.pages.dev"
+                  "katrisarai-rajkiye-vidyalaya-site.pages.dev",
+                  "*.katrisarai-rajkiye-vidyalaya-site.pages.dev"
                 ]
               },
               "ssr": {

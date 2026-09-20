@@ -8,7 +8,7 @@
   // `wrangler pages deploy` either fails with project-not-found or silently
   // creates a second project that no domain points at. `wrangler pages project
   // list` is the authority.
-  "name": "katrisarai-website",
+  "name": "katrisarai-rajkiye-vidyalaya-site",
 
   "compatibility_date": "2026-09-01",
   "compatibility_flags": ["nodejs_compat"],

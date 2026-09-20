@@ -123,11 +123,18 @@ npm run deploy
 ```
 
 This uploads to the Cloudflare Pages project named in `wrangler.jsonc`, which is
-**`katrisarai-website`** — the Angular project is `katrisarai-site`, and the two
-are deliberately different things. `wrangler pages project list` is the
-authority on what exists; point `wrangler.jsonc` at a name that does not, and
-the deploy either fails with project-not-found or quietly creates a second
-project that no domain points at.
+**`katrisarai-rajkiye-vidyalaya-site`** — the Angular project is
+`katrisarai-site`, and the two are deliberately different things.
+`wrangler pages project list` is the authority on what exists; point
+`wrangler.jsonc` at a name that does not, and the deploy either fails with
+project-not-found or quietly creates a second project that no domain points at.
+
+The project name is also the hostname: Pages serves it at
+`katrisarai-rajkiye-vidyalaya-site.pages.dev`, with previews at
+`<hash>.katrisarai-rajkiye-vidyalaya-site.pages.dev`. Both are in
+`allowedHosts`, which is why the wildcard is there — Angular refuses a request
+whose `Host` it does not recognise, so a preview deployment on an unlisted
+hostname answers nothing at all.
 
 ### Building on Cloudflare instead
 
