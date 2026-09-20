@@ -111,9 +111,9 @@ this codebase** and no session handling: Cloudflare does the login, and the
 Worker verifies the signed assertion on every write.
 
 In the dashboard, under Zero Trust → Access → Applications, add a self-hosted
-application covering `<your-domain>/admin*` and `<your-domain>/api/*`, with a
-policy allowing the staff who may publish. Then put the team domain and the
-application's **Audience (AUD) tag** into `wrangler.jsonc`:
+application covering **`<your-domain>` path `admin`** — and only that path —
+with a policy allowing the staff who may publish. Then put the team domain and
+the application's **Audience (AUD) tag** into `wrangler.jsonc`:
 
 ```jsonc
 "vars": {
@@ -125,6 +125,22 @@ application's **Audience (AUD) tag** into `wrangler.jsonc`:
 The AUD check is not optional. Without it, a token minted for _any_ other
 application in the same Zero Trust team is accepted here — see the comment at
 the top of `src/edge/access.ts`. Neither value is a secret.
+
+### Why Access covers `/admin` and not `/api`
+
+Protecting the API as well looks like the safer choice and is the wrong one,
+for two reasons.
+
+It is unnecessary. Access sets its `CF_Authorization` cookie for the whole
+domain, so the admin page's own `fetch` calls to `/api/*` carry it, and
+`verifyAccess` reads the cookie as well as the header. The Worker verifies
+every write itself — that is what `edge/access.ts` is for — so an
+unauthenticated POST is refused whether or not Cloudflare refused it first.
+
+And it breaks something. Access matches on path, not on method, so an
+application covering `/api/*` would also sit in front of `GET /api/notices`,
+which is public. A crawler, a monitor or anything else reading the notice
+board would get a login page instead of JSON.
 
 Until both are set, every write answers **500** with a message saying so,
 rather than 401 — a misconfigured deployment should not look like a login
