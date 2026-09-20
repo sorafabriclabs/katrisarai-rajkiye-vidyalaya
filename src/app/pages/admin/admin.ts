@@ -40,6 +40,16 @@ export class Admin {
   protected readonly notices = this.store.notices;
 
   protected readonly email = signal<string | null>(null);
+
+  /**
+   * Where the page is before it can show anything.
+   *
+   * Three outcomes, not two, because "sign in" and "this deployment is not
+   * configured" are different problems and only one of them is the reader's to
+   * solve. Offering a sign-in button to somebody whose Worker has no Access
+   * application behind it sends them round a loop that cannot terminate.
+   */
+  protected readonly session = signal<'checking' | 'in' | 'out' | 'broken'>('checking');
   protected readonly busy = signal(false);
   protected readonly status = signal<{ text: string; error: boolean } | null>(null);
 
@@ -69,12 +79,25 @@ export class Admin {
     try {
       const session = await firstValueFrom(this.http.get<{ email: string }>('/api/session'));
       this.email.set(session.email);
-    } catch {
-      this.status.set({
-        text: 'Could not confirm your sign-in. Reload the page, or check that Cloudflare Access is configured for this deployment.',
-        error: true,
-      });
+      this.session.set('in');
+    } catch (error) {
+      // 401 is "nobody is signed in", which a sign-in fixes. Anything else —
+      // 500 from `requireAdmin` when ACCESS_TEAM_DOMAIN is blank, a network
+      // failure — is not, and must not be dressed up as one.
+      this.session.set((error as { status?: number })?.status === 401 ? 'out' : 'broken');
     }
+  }
+
+  /**
+   * Starts the Cloudflare Access login.
+   *
+   * A full navigation rather than a router one: Access sits in front of the
+   * deployment and answers the *request*, so the redirect to the login only
+   * happens if the browser actually asks the network for `/admin`. A
+   * client-side route change would never leave the page.
+   */
+  protected signIn(): void {
+    window.location.assign('/admin');
   }
 
   protected startNew(): void {

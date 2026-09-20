@@ -53,6 +53,18 @@ describe('routes', () => {
     }
   });
 
+  /**
+   * `standalone` is what strips the masthead and footer off the admin area.
+   * Lose it and an internal tool starts rendering as a public page of the
+   * college's website, which looks like a design choice rather than a bug.
+   */
+  it('draws the admin area on its own, and every public page in the shell', () => {
+    const standalone = routes
+      .filter((route) => route.data?.['standalone'] === true)
+      .map((route) => route.path);
+    expect(standalone).toEqual(['admin']);
+  });
+
   it('puts the catch-all last, or it would swallow the pages after it', () => {
     expect(routes.filter((r) => r.path === '**')).toHaveLength(1);
     expect(routes[routes.length - 1].path).toBe('**');

@@ -2,18 +2,27 @@
 /**
  * tools/icons.mjs
  *
- * Renders every icon the site ships. Run it whenever either source in
- * `public/assets/` changes; never edit an output by hand.
+ * Renders every icon the site ships, all of them from the college's own seal.
+ * Run it whenever `public/assets/college-mark.png` changes; never edit an
+ * output by hand.
  *
  *   node tools/icons.mjs
  *
- * There are two sources and a size threshold between them — see `SEAL` and
- * `ICON` below for why a downsampled seal cannot be a favicon.
+ * # The crop, which is the only trick here
  *
- * The seal is a colour image on white and is wider than it is tall, so it is
- * padded out to a square on white before anything is resized — an icon left
- * transparent is composited by iOS onto black, which puts a dark ring around a
- * seal whose own outer edge is navy.
+ * The supplied file is 562x512 and **40% of it is white margin** — the seal
+ * itself occupies about 415x418 in the middle. Padding that out to a square
+ * and resizing, which is the obvious thing to do, spends nearly half of a
+ * 32-pixel favicon on empty white and leaves the artwork rendering at around
+ * 19 pixels.
+ *
+ * So it is cropped to the seal first. Same image, same logo, ~40% more pixels
+ * for it at every size. That is the whole difference between a favicon you can
+ * recognise and one you cannot.
+ *
+ * The crop is centred and deliberately a little loose (460px against a 418px
+ * seal): the seal sits a few pixels off-centre in the file, and a crop sized
+ * exactly to it would shave its navy rim on one side.
  *
  * `sips` is macOS's own image tool and is the only dependency: adding sharp to
  * a college website to resize five files once in a while is not a trade worth
@@ -22,52 +31,39 @@
  */
 
 import { execFileSync } from 'node:child_process';
-import { copyFileSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
-/**
- * The two sources, and why there are two.
- *
- * `college-mark.png` is the real seal — a tree, a lamp, a stupa, and the
- * college's name set around the rim. It is the right image wherever there is
- * room for it: the masthead at 84px, a home-screen tile at 180px and up.
- *
- * `college-icon.svg` is a drawn mark in the same colours: the seal's open
- * book, and nothing else. It exists because a browser tab gives an icon 16 or
- * 32 pixels, and at that size every element of the seal is under two pixels —
- * downsampling it produces a gold-brown smudge, not a small logo. The only
- * way to have a legible favicon is to draw one.
- *
- * The split is at 180px, which is where the seal's rim lettering starts to
- * resolve.
- */
+/** The college's seal. Every icon on the site comes from this one file. */
 const SEAL = join(ROOT, 'public/assets/college-mark.png');
-const ICON = join(ROOT, 'public/assets/college-icon.svg');
 
 /**
- * The ground a padded icon sits on.
+ * The ground behind the seal.
  *
- * White, which is both the emblem's own background and the page's. Anything
- * else draws a visible rectangle where the padding meets the seal.
+ * White, which is the seal's own background. An icon left transparent is
+ * composited by iOS onto black, which puts a dark ring around a seal whose
+ * own outer edge is navy.
  */
 const GROUND = 'FFFFFF';
 
-/** The square canvas the mark is centred on before anything is resized. */
-const CANVAS = 1080;
+/**
+ * The square the seal is cropped to, before anything is resized.
+ *
+ * 460 against a seal of about 418: loose enough that the few pixels the seal
+ * sits off-centre by cannot shave its rim, tight enough to drop most of the
+ * 40% of the file that is margin.
+ */
+const CROP = 460;
 
-/** The large icons, downsampled from the seal. */
-const SEAL_SIZES = {
+/** Every icon the site links to, by edge length. */
+const SIZES = {
   'public/icon-512.png': 512,
   'public/icon-192.png': 192,
   'public/apple-touch-icon.png': 180,
-};
-
-/** The tab-sized icons, rasterised from the drawn mark. */
-const ICON_SIZES = {
   'public/favicon-32x32.png': 32,
   'public/favicon-16x16.png': 16,
 };
@@ -106,40 +102,17 @@ function icoFromPng(png, size) {
 
 const work = mkdtempSync(join(tmpdir(), 'katrisarai-icons-'));
 try {
-  // Square first, then down. Padding after a resize would round the seal's
-  // edges twice and soften the rim it is mostly made of.
+  // Crop to the seal, flatten onto white, then resize down from that one
+  // square. Cropping after a resize would throw away pixels and then magnify
+  // what was left; padding after would round the rim twice.
   const square = join(work, 'square.png');
-  sips('-p', String(CANVAS), String(CANVAS), '--padColor', GROUND, SEAL, '--out', square);
+  sips('-c', String(CROP), String(CROP), SEAL, '--out', square);
+  sips('-p', String(CROP), String(CROP), '--padColor', GROUND, square, '--out', square);
 
-  for (const [output, size] of Object.entries(SEAL_SIZES)) {
+  for (const [output, size] of Object.entries(SIZES)) {
     sips('-z', String(size), String(size), square, '--out', join(ROOT, output));
-    console.log(`  ${output}  ${size}×${size}  (seal)`);
+    console.log(`  ${output}  ${size}×${size}`);
   }
-
-  // The drawn mark, rasterised straight from the SVG at each size rather than
-  // once and downsampled — `sips` renders the vector at the target resolution,
-  // so the book's edges stay crisp instead of being resampled twice.
-  for (const [output, size] of Object.entries(ICON_SIZES)) {
-    sips(
-      '-s',
-      'format',
-      'png',
-      '-z',
-      String(size),
-      String(size),
-      ICON,
-      '--out',
-      join(ROOT, output),
-    );
-    console.log(`  ${output}  ${size}×${size}  (drawn mark)`);
-  }
-
-  // The SVG itself, served to every browser that accepts one — which is all of
-  // them now bar old Safari. It is the only icon that is right at every size,
-  // including the 24px a pinned tab uses and the display scale factors none of
-  // the PNGs above are cut for.
-  copyFileSync(ICON, join(ROOT, 'public/icon.svg'));
-  console.log('  public/icon.svg     vector (drawn mark)');
 
   const favicon = join(ROOT, 'public/favicon.ico');
   writeFileSync(favicon, icoFromPng(readFileSync(join(ROOT, 'public/favicon-32x32.png')), 32));
@@ -148,4 +121,4 @@ try {
   rmSync(work, { recursive: true, force: true });
 }
 
-console.log('\n✅ Icons rendered — seal for 180px and up, drawn mark for the tab.');
+console.log('\n✅ Icons rendered from public/assets/college-mark.png');

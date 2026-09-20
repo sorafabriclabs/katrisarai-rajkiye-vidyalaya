@@ -24,7 +24,19 @@
 // `html[lang]` is written by `Translator`, so all of this follows the language
 // switch with no class to toggle and no component that has to know about type.
 
-html[lang='hi'] {
+// `:where()` so that none of this counts towards specificity.
+//
+// Written plainly, `html[lang='hi'] h1` is (0,1,2) — an element, an attribute
+// and an element — which outranks any single class. That is a surprising
+// amount of weight for what is only a type scale, and it means a component
+// with its own heading size, like the admin area's `.admin-gate-card h1` at
+// (0,1,1), silently loses to it and renders at the size a public page uses.
+//
+// `:where(html[lang='hi']) h1` is (0,0,1) instead: the same weight as the
+// plain `h1` in `_sections.scss` that it is overriding, which it still wins
+// because it is loaded after — and light enough that any class-based rule
+// beats it, which is what a type scale should do.
+:where(html[lang='hi']) {
   body {
     font-family: 'Noto Sans Devanagari', 'DM Sans', sans-serif;
     font-size: 17.5px;

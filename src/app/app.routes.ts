@@ -25,6 +25,19 @@ function page(meta: PageMeta): { page: PageMeta } {
 }
 
 /**
+ * A page that is drawn on its own, without the site's masthead and footer.
+ *
+ * Declared on the route rather than decided in the shell: `App` asks whether
+ * the active route wants chrome, so adding another internal page later is a
+ * line here and nothing else. A shell that special-cased `/admin` by path
+ * would need editing every time, and would be the only place in the
+ * application that knows an admin area exists.
+ */
+function standalone(): { standalone: true } {
+  return { standalone: true };
+}
+
+/**
  * The site: five pages and a page for everything else.
  *
  * Each route carries its title and description in `data`; `Seo` reads both and
@@ -148,16 +161,19 @@ export const routes: Routes = [
      */
     path: 'admin',
     loadComponent: () => import('./pages/admin/admin').then((m) => m.Admin),
-    data: page({
-      title: text(
-        'प्रबंधन — राजकीय डिग्री महाविद्यालय, कतरीसराय',
-        'Admin — Government Degree College, Katrisarai',
-      ),
-      description: text(
-        'महाविद्यालय की वेबसाइट पर सूचनाएँ प्रकाशित करने का प्रबंधन पृष्ठ।',
-        'Internal page for publishing notices to the Government Degree College, Katrisarai website.',
-      ),
-    }),
+    data: {
+      ...standalone(),
+      ...page({
+        title: text(
+          'प्रबंधन — राजकीय डिग्री महाविद्यालय, कतरीसराय',
+          'Admin — Government Degree College, Katrisarai',
+        ),
+        description: text(
+          'महाविद्यालय की वेबसाइट पर सूचनाएँ प्रकाशित करने का प्रबंधन पृष्ठ।',
+          'Internal page for publishing notices to the Government Degree College, Katrisarai website.',
+        ),
+      }),
+    },
   },
   {
     /*

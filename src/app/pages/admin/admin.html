@@ -1,150 +1,207 @@
-<section class="admin">
-  <div class="container">
-    <header class="admin-head">
-      <div>
-        <h1>{{ copy.title }}</h1>
-        <p>{{ copy.subtitle }}</p>
-      </div>
-      @if (email(); as who) {
-        <span class="admin-who"
-          >{{ copy.signedInAs }} <strong>{{ who }}</strong></span
-        >
-      }
-    </header>
+@switch (session()) {
+  @case ('checking') {
+    <!--
+      Deliberately not a spinner. The session check is one request against the
+      same edge that served this page; a spinner that appears and vanishes
+      inside 100ms reads as a flicker, and a blank moment reads as nothing.
+    -->
+    <section class="admin-gate" lang="en">
+      <p class="admin-gate-quiet">Checking your sign-in…</p>
+    </section>
+  }
 
-    @if (status(); as note) {
-      <!--
+  @case ('out') {
+    <section class="admin-gate" lang="en">
+      <div class="admin-gate-card">
+        <img src="/icon-192.png" alt="" width="64" height="64" />
+        <span class="admin-gate-college" lang="hi">राजकीय डिग्री महाविद्यालय, कतरीसराय</span>
+        <h1>Notice board</h1>
+        <p>Sign in to publish, edit or withdraw notices.</p>
+        <button class="button gold" type="button" (click)="signIn()">Sign in</button>
+        <small>You will be taken to your organisation's sign-in page.</small>
+      </div>
+    </section>
+  }
+
+  @case ('broken') {
+    <section class="admin-gate" lang="en">
+      <div class="admin-gate-card is-error">
+        <h1>Sign-in is not set up</h1>
+        <p>
+          This deployment has no Cloudflare Access application behind it, so there is nothing to
+          sign in to yet. Signing in will not help until it is configured.
+        </p>
+        <small>
+          Set <code>ACCESS_TEAM_DOMAIN</code> and <code>ACCESS_AUD</code> in
+          <code>wrangler.jsonc</code> and redeploy. See the README.
+        </small>
+      </div>
+    </section>
+  }
+
+  @case ('in') {
+    <section class="admin" lang="en">
+      <div class="container">
+        <header class="admin-head">
+          <div>
+            <h1>{{ copy.title }}</h1>
+            <p>{{ copy.subtitle }}</p>
+          </div>
+          @if (email(); as who) {
+            <span class="admin-who"
+              >{{ copy.signedInAs }} <strong>{{ who }}</strong></span
+            >
+          }
+        </header>
+
+        @if (status(); as note) {
+          <!--
         `role="alert"` so a screen reader announces the outcome. Publishing is
         a button press whose entire result is a line of text elsewhere on the
         page; without this, it is a button that appears to do nothing.
       -->
-      <p class="admin-status" [class.is-error]="note.error" role="alert">{{ note.text }}</p>
-    }
+          <p class="admin-status" [class.is-error]="note.error" role="alert">{{ note.text }}</p>
+        }
 
-    <div class="admin-grid">
-      <!-- ── The form ─────────────────────────────────────────────── -->
-      <form class="admin-form" [formGroup]="form" (ngSubmit)="save()">
-        <h2>{{ heading() }}</h2>
-        <p class="admin-hint">{{ copy.englishNote }}</p>
+        <div class="admin-grid">
+          <!-- ── The form ─────────────────────────────────────────────── -->
+          <form class="admin-form" [formGroup]="form" (ngSubmit)="save()">
+            <h2>{{ heading() }}</h2>
+            <p class="admin-hint">{{ copy.englishNote }}</p>
 
-        <label>
-          <span>{{ copy.date }}</span>
-          <input type="date" formControlName="postedAt" [class.is-invalid]="invalid('postedAt')" />
-        </label>
+            <label>
+              <span>{{ copy.date }}</span>
+              <input
+                type="date"
+                formControlName="postedAt"
+                [class.is-invalid]="invalid('postedAt')"
+              />
+            </label>
 
-        <label>
-          <span>{{ copy.titleHi }}</span>
-          <input
-            type="text"
-            lang="hi"
-            formControlName="titleHi"
-            [class.is-invalid]="invalid('titleHi')"
-          />
-        </label>
+            <label>
+              <span>{{ copy.titleHi }}</span>
+              <input
+                type="text"
+                lang="hi"
+                formControlName="titleHi"
+                [class.is-invalid]="invalid('titleHi')"
+              />
+            </label>
 
-        <label>
-          <span>{{ copy.titleEn }}</span>
-          <input type="text" lang="en" formControlName="titleEn" />
-        </label>
+            <label>
+              <span>{{ copy.titleEn }}</span>
+              <input type="text" lang="en" formControlName="titleEn" />
+            </label>
 
-        <label>
-          <span>{{ copy.bodyHi }}</span>
-          <textarea
-            rows="5"
-            lang="hi"
-            formControlName="bodyHi"
-            [class.is-invalid]="invalid('bodyHi')"
-          ></textarea>
-        </label>
+            <label>
+              <span>{{ copy.bodyHi }}</span>
+              <textarea
+                rows="5"
+                lang="hi"
+                formControlName="bodyHi"
+                [class.is-invalid]="invalid('bodyHi')"
+              ></textarea>
+            </label>
 
-        <label>
-          <span>{{ copy.bodyEn }}</span>
-          <textarea rows="5" lang="en" formControlName="bodyEn"></textarea>
-        </label>
+            <label>
+              <span>{{ copy.bodyEn }}</span>
+              <textarea rows="5" lang="en" formControlName="bodyEn"></textarea>
+            </label>
 
-        <label class="admin-check">
-          <input type="checkbox" formControlName="pinned" />
-          <span>{{ copy.pinned }}</span>
-        </label>
+            <label class="admin-check">
+              <input type="checkbox" formControlName="pinned" />
+              <span>{{ copy.pinned }}</span>
+            </label>
 
-        <div class="admin-file">
-          <span class="admin-file-label">{{ copy.attachment }}</span>
-          @if (attachment(); as file) {
-            <div class="admin-file-current">
-              <a [href]="file.url" target="_blank" rel="noopener">{{ file.name }}</a>
-              <button type="button" (click)="clearAttachment()">{{ copy.removeAttachment }}</button>
-            </div>
-          } @else {
-            <input
-              type="file"
-              accept="image/jpeg,image/png,image/webp,application/pdf"
-              (change)="chooseAttachment($event)"
-            />
-          }
-        </div>
-
-        <div class="admin-actions">
-          <button class="button gold" type="submit" [disabled]="busy()">
-            {{ busy() ? 'Working…' : heading() }}
-          </button>
-          @if (editing()) {
-            <button class="admin-link" type="button" (click)="startNew()">{{ copy.cancel }}</button>
-          }
-        </div>
-      </form>
-
-      <!-- ── The board, and the banner ────────────────────────────── -->
-      <div class="admin-side">
-        <section class="admin-panel">
-          <h2>{{ copy.banner }}</h2>
-          <p class="admin-hint">{{ copy.bannerHelp }}</p>
-          @if (bannerUrl(); as url) {
-            <img class="admin-banner" [src]="url" alt="Current banner" />
-            <button class="admin-link" type="button" [disabled]="busy()" (click)="clearBanner()">
-              {{ copy.bannerClear }}
-            </button>
-          }
-          <input
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            (change)="chooseBanner($event)"
-          />
-        </section>
-
-        <section class="admin-panel">
-          <h2>Published ({{ notices().length }})</h2>
-          @if (notices().length === 0) {
-            <p class="admin-hint">Nothing published yet.</p>
-          } @else {
-            <ul class="admin-list">
-              @for (notice of notices(); track notice.id) {
-                <li>
-                  <div>
-                    <strong lang="hi">{{ notice.title.hi }}</strong>
-                    <small>
-                      {{ notice.postedAt }}
-                      @if (notice.pinned) {
-                        · {{ copy.pinned }}
-                      }
-                    </small>
-                  </div>
-                  <div class="admin-list-actions">
-                    <button type="button" (click)="startEdit(notice)">{{ copy.edit }}</button>
-                    <button
-                      type="button"
-                      class="is-danger"
-                      [disabled]="busy()"
-                      (click)="remove(notice)"
-                    >
-                      {{ copy.remove }}
-                    </button>
-                  </div>
-                </li>
+            <div class="admin-file">
+              <span class="admin-file-label">{{ copy.attachment }}</span>
+              @if (attachment(); as file) {
+                <div class="admin-file-current">
+                  <a [href]="file.url" target="_blank" rel="noopener">{{ file.name }}</a>
+                  <button type="button" (click)="clearAttachment()">
+                    {{ copy.removeAttachment }}
+                  </button>
+                </div>
+              } @else {
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,application/pdf"
+                  (change)="chooseAttachment($event)"
+                />
               }
-            </ul>
-          }
-        </section>
+            </div>
+
+            <div class="admin-actions">
+              <button class="button gold" type="submit" [disabled]="busy()">
+                {{ busy() ? 'Working…' : heading() }}
+              </button>
+              @if (editing()) {
+                <button class="admin-link" type="button" (click)="startNew()">
+                  {{ copy.cancel }}
+                </button>
+              }
+            </div>
+          </form>
+
+          <!-- ── The board, and the banner ────────────────────────────── -->
+          <div class="admin-side">
+            <section class="admin-panel">
+              <h2>{{ copy.banner }}</h2>
+              <p class="admin-hint">{{ copy.bannerHelp }}</p>
+              @if (bannerUrl(); as url) {
+                <img class="admin-banner" [src]="url" alt="Current banner" />
+                <button
+                  class="admin-link"
+                  type="button"
+                  [disabled]="busy()"
+                  (click)="clearBanner()"
+                >
+                  {{ copy.bannerClear }}
+                </button>
+              }
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                (change)="chooseBanner($event)"
+              />
+            </section>
+
+            <section class="admin-panel">
+              <h2>Published ({{ notices().length }})</h2>
+              @if (notices().length === 0) {
+                <p class="admin-hint">Nothing published yet.</p>
+              } @else {
+                <ul class="admin-list">
+                  @for (notice of notices(); track notice.id) {
+                    <li>
+                      <div>
+                        <strong lang="hi">{{ notice.title.hi }}</strong>
+                        <small>
+                          {{ notice.postedAt }}
+                          @if (notice.pinned) {
+                            · {{ copy.pinned }}
+                          }
+                        </small>
+                      </div>
+                      <div class="admin-list-actions">
+                        <button type="button" (click)="startEdit(notice)">{{ copy.edit }}</button>
+                        <button
+                          type="button"
+                          class="is-danger"
+                          [disabled]="busy()"
+                          (click)="remove(notice)"
+                        >
+                          {{ copy.remove }}
+                        </button>
+                      </div>
+                    </li>
+                  }
+                </ul>
+              }
+            </section>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-</section>
+    </section>
+  }
+}

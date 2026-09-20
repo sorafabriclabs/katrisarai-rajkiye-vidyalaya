@@ -264,3 +264,92 @@
     }
   }
 }
+
+// ── The gate ───────────────────────────────────────────────────────────
+//
+// What `/admin` shows before it shows anything: checking, sign in, or a
+// deployment that has nothing to sign in to. The page has no masthead and no
+// footer — see the `standalone` flag in `app.routes.ts` — so this is the whole
+// window, and it is centred in it.
+
+.admin-gate {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--wash);
+}
+
+.admin-gate-quiet {
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.admin-gate-card {
+  width: min(100%, 380px);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--gold-line);
+  padding: 40px 34px 34px;
+  text-align: center;
+
+  img {
+    margin: 0 auto 18px;
+    border-radius: 50%;
+  }
+
+  h1 {
+    font-size: 26px;
+    margin: 0 0 8px;
+  }
+
+  p {
+    font-size: 15px;
+    margin: 0 0 24px;
+  }
+
+  .button {
+    // The one action on the card, so it spans it rather than sitting in a
+    // corner of it.
+    width: 100%;
+    justify-content: center;
+    gap: 0;
+  }
+
+  small {
+    display: block;
+    margin-top: 18px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  code {
+    font-size: 11px;
+    background: var(--wash-warm);
+    padding: 1px 5px;
+    border-radius: 2px;
+  }
+
+  // The misconfigured state. Red on the rule rather than the whole card: it is
+  // information for whoever deployed this, not an alarm for whoever opened it.
+  &.is-error {
+    border-top-color: #b3261e;
+    text-align: left;
+
+    p {
+      margin-bottom: 0;
+    }
+  }
+
+  @media (max-width: 420px) {
+    padding: 32px 24px 26px;
+  }
+}
+
+.admin-gate-college {
+  display: block;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
