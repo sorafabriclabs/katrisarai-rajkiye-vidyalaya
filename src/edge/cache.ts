@@ -123,7 +123,7 @@ export function edgeCacheKey(url: URL, buildId: string, contentStamp = '0'): Req
  * makes "is caching on?" a question nobody can answer from outside, which is
  * exactly when a cache quietly stops working and nobody notices for a month.
  *
- * `curl -sI https://gdckatrisarai.ac.in/ | grep -i x-edge-cache` is the whole
+ * `curl -sI https://rdmkatrisarai.ac.in/ | grep -i x-edge-cache` is the whole
  * of the diagnostic. It leaks nothing: the values say how this deployment served a
  * public page, not who asked for it.
  */

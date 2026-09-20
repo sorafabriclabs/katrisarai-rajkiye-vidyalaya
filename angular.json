@@ -79,8 +79,8 @@
                 "allowedHosts": [
                   "localhost",
                   "127.0.0.1",
-                  "gdckatrisarai.ac.in",
-                  "*.gdckatrisarai.ac.in",
+                  "rdmkatrisarai.ac.in",
+                  "*.rdmkatrisarai.ac.in",
                   "katrisarai-rajkiye-vidyalaya-site.pages.dev",
                   "*.katrisarai-rajkiye-vidyalaya-site.pages.dev"
                 ]

@@ -63,7 +63,7 @@ export const SITE = {
    * happened to be fetched from — which, for a site that also answers on
    * `*.pages.dev`, is the preview deployment.
    */
-  origin: 'https://gdckatrisarai.ac.in',
+  origin: 'https://rdmkatrisarai.ac.in',
 
   /** Who the university is, and where its portals live. */
   university: {

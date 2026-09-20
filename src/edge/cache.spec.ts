@@ -20,18 +20,18 @@ describe('edgeCacheKey', () => {
   const key = (url: string, build = 'b1') => new URL(edgeCacheKey(new URL(url), build).url);
 
   it('stamps the deployment, so a deploy invalidates everything it wrote', () => {
-    expect(key('https://gdckatrisarai.ac.in/', 'deploy-7').searchParams.get('__build')).toBe(
+    expect(key('https://rdmkatrisarai.ac.in/', 'deploy-7').searchParams.get('__build')).toBe(
       'deploy-7',
     );
     // Two deployments of the same URL are two entries, which is the whole
     // mechanism: the new one looks up a key that was never written.
-    expect(key('https://gdckatrisarai.ac.in/', 'a').toString()).not.toBe(
-      key('https://gdckatrisarai.ac.in/', 'b').toString(),
+    expect(key('https://rdmkatrisarai.ac.in/', 'a').toString()).not.toBe(
+      key('https://rdmkatrisarai.ac.in/', 'b').toString(),
     );
   });
 
   it('drops click identifiers, so every ad click is one cache entry', () => {
-    const plain = key('https://gdckatrisarai.ac.in/').toString();
+    const plain = key('https://rdmkatrisarai.ac.in/').toString();
     for (const click of [
       '?fbclid=AbC123',
       '?gclid=xyz',
@@ -40,26 +40,26 @@ describe('edgeCacheKey', () => {
       '?utm_source=linkedin&utm_campaign=beta',
       '?fbclid=one&utm_medium=paid',
     ]) {
-      expect(key(`https://gdckatrisarai.ac.in/${click}`).toString(), click).toBe(plain);
+      expect(key(`https://rdmkatrisarai.ac.in/${click}`).toString(), click).toBe(plain);
     }
   });
 
   it('keeps anything the render would actually depend on', () => {
-    expect(key('https://gdckatrisarai.ac.in/?page=2').searchParams.get('page')).toBe('2');
-    expect(key('https://gdckatrisarai.ac.in/?page=2').toString()).not.toBe(
-      key('https://gdckatrisarai.ac.in/?page=3').toString(),
+    expect(key('https://rdmkatrisarai.ac.in/?page=2').searchParams.get('page')).toBe('2');
+    expect(key('https://rdmkatrisarai.ac.in/?page=2').toString()).not.toBe(
+      key('https://rdmkatrisarai.ac.in/?page=3').toString(),
     );
   });
 
   it('sorts what it keeps, so one page is one entry however it was linked', () => {
-    expect(key('https://gdckatrisarai.ac.in/x?a=1&b=2').toString()).toBe(
-      key('https://gdckatrisarai.ac.in/x?b=2&a=1').toString(),
+    expect(key('https://rdmkatrisarai.ac.in/x?a=1&b=2').toString()).toBe(
+      key('https://rdmkatrisarai.ac.in/x?b=2&a=1').toString(),
     );
   });
 
   it('distinguishes paths', () => {
-    expect(key('https://gdckatrisarai.ac.in/contact').toString()).not.toBe(
-      key('https://gdckatrisarai.ac.in/faculty').toString(),
+    expect(key('https://rdmkatrisarai.ac.in/contact').toString()).not.toBe(
+      key('https://rdmkatrisarai.ac.in/faculty').toString(),
     );
   });
 });
@@ -67,20 +67,20 @@ describe('edgeCacheKey', () => {
 describe('isShareableDocument', () => {
   it('shares every ordinary page view — there is nothing personal on this site', () => {
     for (const path of ['/', '/contact', '/faculty', '/anything']) {
-      expect(isShareableDocument(new Request(`https://gdckatrisarai.ac.in${path}`))).toBe(true);
+      expect(isShareableDocument(new Request(`https://rdmkatrisarai.ac.in${path}`))).toBe(true);
     }
   });
 
   it('refuses anything that is not a GET', () => {
     expect(
-      isShareableDocument(new Request('https://gdckatrisarai.ac.in/contact', { method: 'POST' })),
+      isShareableDocument(new Request('https://rdmkatrisarai.ac.in/contact', { method: 'POST' })),
     ).toBe(false);
   });
 
   it('refuses a request carrying credentials', () => {
     expect(
       isShareableDocument(
-        new Request('https://gdckatrisarai.ac.in/', {
+        new Request('https://rdmkatrisarai.ac.in/', {
           headers: { Authorization: 'Bearer x' },
         }),
       ),
@@ -183,28 +183,28 @@ describe('edgeCacheKey — content stamp', () => {
     edgeCacheKey(new URL(url), build, stamp).url;
 
   it('separates two content stamps, so publishing invalidates every page', () => {
-    expect(key('https://gdckatrisarai.ac.in/notices', 'b1', 's1')).not.toBe(
-      key('https://gdckatrisarai.ac.in/notices', 'b1', 's2'),
+    expect(key('https://rdmkatrisarai.ac.in/notices', 'b1', 's1')).not.toBe(
+      key('https://rdmkatrisarai.ac.in/notices', 'b1', 's2'),
     );
   });
 
   it('keeps the deployment and the content stamp independent', () => {
     // A deploy must invalidate even if no notice changed, and a publish must
     // invalidate even though the deployment did not.
-    const a = key('https://gdckatrisarai.ac.in/', 'b1', 's1');
-    expect(key('https://gdckatrisarai.ac.in/', 'b2', 's1')).not.toBe(a);
-    expect(key('https://gdckatrisarai.ac.in/', 'b1', 's2')).not.toBe(a);
+    const a = key('https://rdmkatrisarai.ac.in/', 'b1', 's1');
+    expect(key('https://rdmkatrisarai.ac.in/', 'b2', 's1')).not.toBe(a);
+    expect(key('https://rdmkatrisarai.ac.in/', 'b1', 's2')).not.toBe(a);
   });
 
   it('is stable for the same url, deployment and content', () => {
-    expect(key('https://gdckatrisarai.ac.in/notices', 'b1', 's1')).toBe(
-      key('https://gdckatrisarai.ac.in/notices', 'b1', 's1'),
+    expect(key('https://rdmkatrisarai.ac.in/notices', 'b1', 's1')).toBe(
+      key('https://rdmkatrisarai.ac.in/notices', 'b1', 's1'),
     );
   });
 
   it('still drops click identifiers once a stamp is in play', () => {
-    expect(key('https://gdckatrisarai.ac.in/notices?fbclid=xyz', 'b1', 's1')).toBe(
-      key('https://gdckatrisarai.ac.in/notices', 'b1', 's1'),
+    expect(key('https://rdmkatrisarai.ac.in/notices?fbclid=xyz', 'b1', 's1')).toBe(
+      key('https://rdmkatrisarai.ac.in/notices', 'b1', 's1'),
     );
   });
 });

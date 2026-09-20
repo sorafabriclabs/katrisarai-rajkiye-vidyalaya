@@ -7,4 +7,4 @@ Allow: /
 Disallow: /admin
 Disallow: /api/
 
-Sitemap: https://gdckatrisarai.ac.in/sitemap.xml
+Sitemap: https://rdmkatrisarai.ac.in/sitemap.xml

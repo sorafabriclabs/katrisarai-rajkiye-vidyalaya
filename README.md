@@ -232,25 +232,31 @@ hostname answers nothing at all.
 
 ### Before the first real deploy
 
-The domain is a **placeholder**: `https://gdckatrisarai.ac.in`. It is baked into
-the canonical URL, the `og:` tags, the sitemap, robots.txt and the JSON-LD. When
-the college has a real one, change it in four places:
+The domain is **not registered yet**: `https://rdmkatrisarai.ac.in` — RDM for
+राजकीय डिग्री महाविद्यालय. It is baked into the canonical URL, the `og:` tags,
+the sitemap, robots.txt and the JSON-LD. To change it, five places:
 
 1. `SITE.origin` in `src/app/content/site.content.ts`
 2. `public/sitemap.xml`
 3. `public/robots.txt`
-4. `security.allowedHosts` in the `cloudflare` configuration in `angular.json`
+4. `src/index.html` — `og:image`, and the JSON-LD `url` and `logo`
+5. `security.allowedHosts` in the `cloudflare` configuration in `angular.json`
 
-`sitemap.spec.ts` fails until 1, 2 and 3 agree, so only the fourth can be
-forgotten quietly — and forgetting it means Angular refuses every request to the
-new hostname.
+`sitemap.spec.ts` fails until 1–4 agree, so only the fifth can be forgotten
+quietly — and forgetting it means Angular refuses every request to the new
+hostname.
+
+Number 4 is the one that used to be missed: nothing imports `index.html`, so a
+stale `og:image` is invisible until somebody shares a link and gets a broken
+preview, and a stale JSON-LD `url` tells a search engine the college lives
+somewhere it does not. It is covered by a spec now.
 
 ## Checking the edge cache
 
 Every HTML response says how it was produced:
 
 ```sh
-curl -sI https://gdckatrisarai.ac.in/ | grep -i x-edge-cache
+curl -sI https://rdmkatrisarai.ac.in/ | grep -i x-edge-cache
 ```
 
 `HIT` means the edge answered without rendering, `MISS` means it rendered and

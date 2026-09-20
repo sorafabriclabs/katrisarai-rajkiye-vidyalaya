@@ -39,7 +39,7 @@ import { BANNER_KEY, Database, contentStamp, getSetting, listNotices } from './e
  *
  * Every HTML response says which of those happened, in `X-Edge-Cache`:
  *
- *   curl -sI https://gdckatrisarai.ac.in/ | grep -i x-edge-cache
+ *   curl -sI https://rdmkatrisarai.ac.in/ | grep -i x-edge-cache
  *
  * `HIT` means the edge answered without rendering, `MISS` means it rendered
  * and kept the result, and `BYPASS` means it rendered something it will not

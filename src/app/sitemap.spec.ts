@@ -65,3 +65,30 @@ describe('robots.txt', () => {
     expect(robots).toContain('Disallow: /api/');
   });
 });
+
+/**
+ * `src/index.html` carries the origin three times — `og:image`, and the `url`
+ * and `logo` of the JSON-LD — and no import reaches any of them.
+ *
+ * That gap is why this exists. When the domain changed from gdckatrisarai to
+ * rdmkatrisarai, the four places the README listed were all guarded or
+ * obvious; these three were neither, and a stale `og:image` is invisible until
+ * somebody shares a link and gets a broken preview, while a stale JSON-LD
+ * `url` tells a search engine the college lives somewhere it does not.
+ */
+describe('index.html', () => {
+  const html = readFileSync('src/index.html', 'utf8');
+  const origins = [...html.matchAll(/https:\/\/[a-z0-9.-]*katrisarai[a-z0-9.-]*/gi)].map(
+    (m) => m[0],
+  );
+
+  it('mentions the origin at all, so the check is not passing vacuously', () => {
+    expect(origins.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('uses the canonical origin everywhere it names one', () => {
+    for (const found of origins) {
+      expect(found.startsWith(SITE.origin), `${found} should be ${SITE.origin}`).toBe(true);
+    }
+  });
+});
