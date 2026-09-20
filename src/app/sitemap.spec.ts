@@ -18,9 +18,16 @@ describe('sitemap.xml', () => {
   const xml = readFileSync('public/sitemap.xml', 'utf8');
   const listed = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
 
-  /** Every route that should be indexed: the real pages, not the catch-all. */
+  /**
+   * Every route that should be indexed: the public pages.
+   *
+   * `/admin` is excluded here as well as from the file. It is an internal page
+   * behind Cloudflare Access — listing it would advertise it to every crawler
+   * that reads the sitemap, and the spec would otherwise demand it be listed.
+   */
+  const NOT_INDEXED = new Set(['**', 'admin']);
   const indexable = routes
-    .filter((route) => route.path !== '**')
+    .filter((route) => !NOT_INDEXED.has(String(route.path)))
     .map((route) => `${SITE.origin}/${route.path}`);
 
   it('lists exactly the indexable routes', () => {
@@ -29,6 +36,10 @@ describe('sitemap.xml', () => {
 
   it('does not advertise the not-found page', () => {
     expect(listed.some((loc) => loc.includes('**'))).toBe(false);
+  });
+
+  it('does not advertise the admin page', () => {
+    expect(listed.some((loc) => loc.endsWith('/admin'))).toBe(false);
   });
 
   it('uses the canonical origin, which is what `Seo` writes on each page', () => {
@@ -43,8 +54,14 @@ describe('sitemap.xml', () => {
  * origin appears that no import can reach.
  */
 describe('robots.txt', () => {
+  const robots = readFileSync('public/robots.txt', 'utf8');
+
   it('points at the sitemap on the canonical origin', () => {
-    const robots = readFileSync('public/robots.txt', 'utf8');
     expect(robots).toContain(`Sitemap: ${SITE.origin}/sitemap.xml`);
+  });
+
+  it('keeps crawlers out of the admin area and the API', () => {
+    expect(robots).toContain('Disallow: /admin');
+    expect(robots).toContain('Disallow: /api/');
   });
 });

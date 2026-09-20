@@ -76,18 +76,28 @@ const CLICK_ID_PARAMS = new Set([
 ]);
 
 /**
- * The cache key: this URL, stamped with the deployment that would answer it.
+ * The cache key: this URL, stamped with the deployment *and* the content that
+ * would answer it.
  *
  * Stamping rather than purging is what makes a stale document impossible
  * instead of merely unlikely — a new deployment looks up keys that were never
  * written, so there is no purge call to remember, no API token to rotate, and
  * no window in which the purge has not run yet.
  *
+ * There are two stamps because there are two ways the page can change:
+ *
+ *   - `__build` is the deployment. It covers everything that changes when the
+ *     site is deployed, which is all of the copy in `content/`.
+ *   - `__content` is the notice board. It covers everything the office can
+ *     change without a deploy, and it is why a published notice is visible in
+ *     seconds rather than at the end of the day's cache TTL. See
+ *     `contentStamp` in `notices.ts`.
+ *
  * Anything the render depends on stays in the key and is sorted, so `?a=1&b=2`
  * and `?b=2&a=1` are one entry. Click identifiers and `utm_*` tags do not
  * change a single byte of the output, so they go.
  */
-export function edgeCacheKey(url: URL, buildId: string): Request {
+export function edgeCacheKey(url: URL, buildId: string, contentStamp = '0'): Request {
   const keyUrl = new URL(url.toString());
   const kept = [...keyUrl.searchParams.entries()]
     .filter(
@@ -99,6 +109,7 @@ export function edgeCacheKey(url: URL, buildId: string): Request {
   keyUrl.search = '';
   for (const [name, value] of kept) keyUrl.searchParams.append(name, value);
   keyUrl.searchParams.set('__build', buildId);
+  keyUrl.searchParams.set('__content', contentStamp);
   return new Request(keyUrl.toString(), { method: 'GET' });
 }
 

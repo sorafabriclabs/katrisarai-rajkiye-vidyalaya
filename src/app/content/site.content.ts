@@ -81,6 +81,7 @@ export const SITE = {
 /** The primary navigation, in the header of every page. */
 export const NAV: readonly SiteLink[] = [
   { label: text('मुखपृष्ठ', 'Home'), path: '/' },
+  { label: text('सूचना पट्ट', 'Notices'), path: '/notices' },
   { label: text('शैक्षणिक विषय', 'Academics'), path: '/academics' },
   { label: text('शिक्षक', 'Faculty'), path: '/faculty' },
   { label: text('विद्यार्थी संसाधन', 'Student resources'), path: '/students' },
@@ -121,6 +122,7 @@ export const FOOTER_COLUMNS: readonly {
     title: text('महाविद्यालय', 'The college'),
     links: [
       { label: text('महाविद्यालय परिचय', 'About the college'), path: '/' },
+      { label: text('सूचना पट्ट', 'Notices'), path: '/notices' },
       { label: text('शैक्षणिक विषय', 'Academics'), path: '/academics' },
       { label: text('शिक्षक', 'Faculty'), path: '/faculty' },
     ],

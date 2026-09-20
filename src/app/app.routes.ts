@@ -55,6 +55,21 @@ export const routes: Routes = [
     }),
   },
   {
+    path: 'notices',
+    loadComponent: () => import('./pages/notices/notices').then((m) => m.Notices),
+    data: page({
+      title: text(
+        'सूचना पट्ट — राजकीय डिग्री महाविद्यालय, कतरीसराय',
+        'Notices — Government Degree College, Katrisarai',
+      ),
+      description: text(
+        'परीक्षा, प्रवेश और महाविद्यालय से जुड़ी नवीनतम सूचनाएँ एवं घोषणाएँ।',
+        'The latest examination, admission and college announcements from ' +
+          'Government Degree College, Katrisarai, Nalanda.',
+      ),
+    }),
+  },
+  {
     path: 'academics',
     loadComponent: () => import('./pages/academics/academics').then((m) => m.Academics),
     data: page({
@@ -115,6 +130,32 @@ export const routes: Routes = [
           'परिसर में उपलब्ध आधारभूत सुविधाएँ।',
         'Where the college is, how to reach the principal, and the campus it ' +
           'shares with Teknarayan +2 High School in Katrisarai, Nalanda.',
+      ),
+    }),
+  },
+  {
+    /*
+     * The admin area.
+     *
+     * Not protected by anything in this application, and deliberately so:
+     * Cloudflare Access sits in front of the deployment, and the Worker
+     * verifies a signed assertion on every write (`edge/access.ts`). A guard
+     * here would be a second, weaker gate that could disagree with the first.
+     *
+     * It is excluded from `sitemap.xml` and disallowed in `robots.txt`, and
+     * `app.routes.server.ts` keeps it out of the edge cache — a cached admin
+     * page would be one administrator's view served to the next.
+     */
+    path: 'admin',
+    loadComponent: () => import('./pages/admin/admin').then((m) => m.Admin),
+    data: page({
+      title: text(
+        'प्रबंधन — राजकीय डिग्री महाविद्यालय, कतरीसराय',
+        'Admin — Government Degree College, Katrisarai',
+      ),
+      description: text(
+        'महाविद्यालय की वेबसाइट पर सूचनाएँ प्रकाशित करने का प्रबंधन पृष्ठ।',
+        'Internal page for publishing notices to the Government Degree College, Katrisarai website.',
       ),
     }),
   },

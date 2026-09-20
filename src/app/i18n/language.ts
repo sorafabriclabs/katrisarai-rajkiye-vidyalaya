@@ -1,5 +1,7 @@
 import { DOCUMENT, Injectable, afterNextRender, effect, inject, signal } from '@angular/core';
 
+import { Text } from '../../model/text';
+
 /**
  * The two languages the site is written in.
  *
@@ -10,23 +12,13 @@ import { DOCUMENT, Injectable, afterNextRender, effect, inject, signal } from '@
  */
 export type Language = 'hi' | 'en';
 
-/**
- * A string the site says, in both languages.
- *
- * Every piece of copy in `content/` is one of these rather than a `string`, so
- * the compiler is what stops a sentence being added in one language only — the
- * failure mode of the static site this replaced, where a missing `data-hi`
- * silently left English on a Hindi page.
+/*
+ * `Text` and its constructors live in `src/model/text.ts`, with no Angular
+ * imports, because the Worker builds them out of D1 rows and may not import
+ * this file. They are re-exported here so that everything in `app/` can keep
+ * treating this as the one place i18n comes from.
  */
-export interface Text {
-  readonly hi: string;
-  readonly en: string;
-}
-
-/** Shorthand for building one, so the content files read as prose. */
-export function text(hi: string, en: string): Text {
-  return { hi, en };
-}
+export { type Text, text, textOrFallback } from '../../model/text';
 
 /** Where the choice is kept between visits. Shared with the static site it replaces. */
 const STORAGE_KEY = 'college-language';

@@ -29,4 +29,36 @@
   // Assets fields; under Pages they are not read at deploy time and their
   // relative paths break `wrangler pages dev` when run from the repo root.
   "pages_build_output_dir": "dist/katrisarai-site-cloudflare",
+
+  // The notice board. `database_id` is filled in by
+  // `wrangler d1 create katrisarai-notices` and is not a secret — it names the
+  // database, it does not grant access to it.
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "katrisarai-notices",
+      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+      "migrations_dir": "migrations",
+    },
+  ],
+
+  // Uploaded files: the banner photograph and notice attachments. Served by
+  // the Worker at /media/<key>, never directly from the bucket — the bucket
+  // stays private, and `serveMedia` is what decides the headers.
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      "bucket_name": "katrisarai-media",
+    },
+  ],
+
+  // Cloudflare Access. Neither is a secret: the team domain is public, and the
+  // AUD tag identifies the application rather than authorising anything. They
+  // are here rather than in `.dev.vars` so that a deployment cannot start
+  // without them — `verifyAccess` throws when either is missing, which is a
+  // 500 on the admin API rather than an admin area that quietly lets anyone in.
+  "vars": {
+    "ACCESS_TEAM_DOMAIN": "REPLACE_WITH_TEAM.cloudflareaccess.com",
+    "ACCESS_AUD": "REPLACE_WITH_ACCESS_AUD_TAG",
+  },
 }

@@ -32,6 +32,7 @@ describe('SiteHeader', () => {
         provideZonelessChangeDetection(),
         provideRouter([
           { path: '', component: Blank },
+          { path: 'notices', component: Blank },
           { path: 'academics', component: Blank },
           { path: 'faculty', component: Blank },
           { path: 'contact', component: Blank },
@@ -59,6 +60,7 @@ describe('SiteHeader', () => {
     const links = [...fixture.nativeElement.querySelectorAll('.nav-links a')] as HTMLElement[];
     expect(links.map((a) => a.textContent?.trim())).toEqual([
       'मुखपृष्ठ',
+      'सूचना पट्ट',
       'शैक्षणिक विषय',
       'शिक्षक',
       'विद्यार्थी संसाधन',
@@ -77,6 +79,7 @@ describe('SiteHeader', () => {
     const links = [...fixture.nativeElement.querySelectorAll('.nav-links a')] as HTMLElement[];
     expect(links.map((a) => a.textContent?.trim())).toEqual([
       'Home',
+      'Notices',
       'Academics',
       'Faculty',
       'Student resources',

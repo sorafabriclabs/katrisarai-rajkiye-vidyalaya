@@ -1,5 +1,6 @@
 import { AngularAppEngine, createRequestHandler } from '@angular/ssr';
 
+import { ApiEnv, handleApi, isApiPath } from './edge/api';
 import {
   EdgeCacheOptions,
   STATIC_ASSET_RE,
@@ -10,6 +11,9 @@ import {
   withEdgeTtl,
   worthCaching,
 } from './edge/cache';
+import { Bucket } from './edge/media';
+import { Notice } from './model/notice';
+import { BANNER_KEY, Database, contentStamp, getSetting, listNotices } from './edge/notices';
 
 /**
  * The Cloudflare Pages entry point. `server.ts` is the Node equivalent and the
@@ -61,6 +65,16 @@ export interface Env {
    * refused.
    */
   readonly ALLOWED_HOSTS?: string;
+
+  /** The notice board. See `migrations/` for its schema. */
+  readonly DB: Database;
+
+  /** Uploaded files: the banner photograph and notice attachments. */
+  readonly MEDIA: Bucket;
+
+  /** Cloudflare Access, which is what makes the admin area an admin area. */
+  readonly ACCESS_TEAM_DOMAIN?: string;
+  readonly ACCESS_AUD?: string;
 
   /**
    * The commit a Pages deployment was built from, set by Cloudflare itself on
@@ -150,9 +164,69 @@ function buildId(env: Env): Promise<string | null> {
   return buildIdPromise;
 }
 
+/**
+ * What the Angular render is given, beyond the request itself.
+ *
+ * Angular picks this up as `REQUEST_CONTEXT`, and `NoticeStore` reads it — so
+ * the notice board arrives in the render already loaded, rather than the
+ * application fetching `/api/notices` and the Worker issuing a request to
+ * itself mid-render.
+ *
+ * # Why it is loaded for every page
+ *
+ * Because it is one indexed query against a table with a few dozen rows, and
+ * because the alternative — loading it only for the pages that show notices —
+ * means this function has to know which pages those are. It already has to be
+ * right about the cache key; making it also the authority on which routes read
+ * which data is how the two quietly drift apart. The edge cache means this
+ * runs roughly once per page per deployment per location.
+ *
+ * # Why a failure is not an error
+ *
+ * A database that is briefly unavailable should cost the notice board, not the
+ * whole site. The landing page, the subjects, the faculty list and the contact
+ * details are all in the bundle and none of them need D1 — so a failed read
+ * renders the site with an empty notice board, and logs.
+ */
+async function renderContext(env: Env): Promise<NoticeSnapshot> {
+  const renderedAt = new Date().toISOString();
+  try {
+    const [notices, bannerUrl] = await Promise.all([
+      listNotices(env.DB),
+      getSetting(env.DB, BANNER_KEY),
+    ]);
+    return { notices, bannerUrl: bannerUrl || null, renderedAt };
+  } catch (error) {
+    console.error('Notice board unavailable for this render', {
+      error: error instanceof Error ? error.message : error,
+    });
+    return { notices: [], bannerUrl: null, renderedAt };
+  }
+}
+
+/** Kept in step with `app/notices/notice-store.ts`, which reads it. */
+interface NoticeSnapshot {
+  readonly notices: readonly Notice[];
+  readonly bannerUrl: string | null;
+  readonly renderedAt: string;
+}
+
 async function handle(request: Request, env: Env, ctx?: ExecutionCtx): Promise<Response> {
   const url = new URL(request.url);
   const { pathname } = url;
+
+  // ── 0. The API and uploaded files ──────────────────────────────────────
+  //
+  // Before the asset branch, and that order is load-bearing: `/media/<hash>
+  // .png` ends in `.png`, so the static-asset rule below would answer 404 for
+  // every uploaded image before this ever ran.
+  //
+  // Never cached at the edge. The public list is already behind the page
+  // render's cache, and everything else here is a write or is per-person.
+  if (isApiPath(pathname)) {
+    const response = await handleApi(request, env as unknown as ApiEnv);
+    if (response) return response;
+  }
 
   // ── 1. Static files ────────────────────────────────────────────────────
   // Explicit, because under Pages nothing tried them before this Worker did.
@@ -192,10 +266,19 @@ async function handle(request: Request, env: Env, ctx?: ExecutionCtx): Promise<R
   // ── 2. The edge cache ──────────────────────────────────────────────────
   // Before rendering, because the whole point is not to render. A hit costs a
   // cache lookup; a miss costs what every request would otherwise cost.
-  const cache = edgeCacheStore();
+  //
+  // The admin page is never shared. It is per-administrator by definition, and
+  // a cached copy would be one person's view handed to the next.
+  const cache = pathname === '/admin' ? undefined : edgeCacheStore();
   const shareable = cache && isShareableDocument(request);
   const id = shareable ? await buildId(env) : null;
-  const key = shareable && id ? edgeCacheKey(url, id) : undefined;
+
+  // The content stamp is what lets the office publish a notice without waiting
+  // out the day-long TTL: a publish bumps it, every key stops matching, and
+  // the next request re-renders. Memoised for fifteen seconds inside
+  // `contentStamp`, so this is not a database read per request.
+  const stamp = shareable && id ? await contentStamp(env.DB).catch(() => '0') : '0';
+  const key = shareable && id ? edgeCacheKey(url, id, stamp) : undefined;
 
   if (cache && key) {
     const hit = await cache.match(key);
@@ -205,7 +288,7 @@ async function handle(request: Request, env: Env, ctx?: ExecutionCtx): Promise<R
   // ── 3. The render ──────────────────────────────────────────────────────
   let rendered: Response | null;
   try {
-    rendered = await appEngine(env).handle(request);
+    rendered = await appEngine(env).handle(request, await renderContext(env));
   } catch (error) {
     // A throwing render takes the whole Worker with it otherwise: Cloudflare
     // answers an uncaught exception with an empty 500 — no content type, no

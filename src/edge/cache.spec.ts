@@ -169,3 +169,42 @@ describe('worthCaching', () => {
     ).toBe(false);
   });
 });
+
+/**
+ * The content stamp is the half of the cache key that lets the office publish
+ * a notice without waiting out a day-long TTL. These are the properties that
+ * make it work, and the one that makes it safe.
+ */
+describe('edgeCacheKey — content stamp', () => {
+  // `.url`, not `.toString()`: a Request stringifies to "[object Request]",
+  // which compares equal to every other Request and makes any assertion here
+  // pass or fail for the wrong reason.
+  const key = (url: string, build: string, stamp: string) =>
+    edgeCacheKey(new URL(url), build, stamp).url;
+
+  it('separates two content stamps, so publishing invalidates every page', () => {
+    expect(key('https://gdckatrisarai.ac.in/notices', 'b1', 's1')).not.toBe(
+      key('https://gdckatrisarai.ac.in/notices', 'b1', 's2'),
+    );
+  });
+
+  it('keeps the deployment and the content stamp independent', () => {
+    // A deploy must invalidate even if no notice changed, and a publish must
+    // invalidate even though the deployment did not.
+    const a = key('https://gdckatrisarai.ac.in/', 'b1', 's1');
+    expect(key('https://gdckatrisarai.ac.in/', 'b2', 's1')).not.toBe(a);
+    expect(key('https://gdckatrisarai.ac.in/', 'b1', 's2')).not.toBe(a);
+  });
+
+  it('is stable for the same url, deployment and content', () => {
+    expect(key('https://gdckatrisarai.ac.in/notices', 'b1', 's1')).toBe(
+      key('https://gdckatrisarai.ac.in/notices', 'b1', 's1'),
+    );
+  });
+
+  it('still drops click identifiers once a stamp is in play', () => {
+    expect(key('https://gdckatrisarai.ac.in/notices?fbclid=xyz', 'b1', 's1')).toBe(
+      key('https://gdckatrisarai.ac.in/notices', 'b1', 's1'),
+    );
+  });
+});

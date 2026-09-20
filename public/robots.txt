@@ -1,5 +1,10 @@
-# Five pages, all of them public.
+# Six public pages. The notice board is the one that changes.
 User-agent: *
 Allow: /
+
+# The admin area. Behind Cloudflare Access, so a crawler could not read it
+# anyway — this keeps it out of the index and out of the crawl budget.
+Disallow: /admin
+Disallow: /api/
 
 Sitemap: https://gdckatrisarai.ac.in/sitemap.xml

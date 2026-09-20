@@ -27,9 +27,11 @@ import { RenderMode, ServerRoute } from '@angular/ssr';
  */
 export const serverRoutes: ServerRoute[] = [
   { path: '', renderMode: RenderMode.Server },
+  { path: 'notices', renderMode: RenderMode.Server },
   { path: 'academics', renderMode: RenderMode.Server },
   { path: 'faculty', renderMode: RenderMode.Server },
   { path: 'students', renderMode: RenderMode.Server },
   { path: 'contact', renderMode: RenderMode.Server },
+  { path: 'admin', renderMode: RenderMode.Server },
   { path: '**', renderMode: RenderMode.Server, status: 404 },
 ];

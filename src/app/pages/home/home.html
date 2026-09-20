@@ -8,8 +8,8 @@
   -->
   <img
     class="hero-image"
-    [src]="hero.image.src"
-    [alt]="t(hero.image.alt)"
+    [src]="bannerSrc()"
+    [alt]="bannerIsDefault() ? t(hero.image.alt) : ''"
     width="2200"
     height="1235"
     fetchpriority="high"
@@ -45,11 +45,43 @@
 
   <div class="hero-bottom container">
     <span lang="hi">{{ site.fullName.hi }}</span>
-    <span>{{ t(hero.image.caption) }}</span>
+    @if (bannerIsDefault()) {
+      <span>{{ t(hero.image.caption) }}</span>
+    }
   </div>
 </section>
 
 <app-student-desk />
+
+@if (latest().length) {
+  <section class="section latest" appReveal>
+    <div class="container">
+      <span class="eyebrow">{{ t(noticeCopy.latest.eyebrow) }}</span>
+      <h2>{{ t(noticeCopy.latest.title) }}</h2>
+
+      <div class="latest-grid">
+        @for (notice of latest(); track notice.id) {
+          <article>
+            <div class="notice-meta">
+              <time [attr.datetime]="notice.postedAt">{{ notice.postedAt }}</time>
+              @if (isRecent(notice)) {
+                <span class="badge badge-new" [attr.aria-label]="t(noticeCopy.isNewLabel)">
+                  {{ t(noticeCopy.isNew) }}
+                </span>
+              }
+            </div>
+            <h3>{{ t(notice.title) }}</h3>
+            <p>{{ t(notice.body) }}</p>
+          </article>
+        }
+      </div>
+
+      <a class="underlink latest-all" routerLink="/notices">
+        {{ t(noticeCopy.latest.all) }} <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  </section>
+}
 
 <section class="section container about" id="about" appReveal>
   <div>

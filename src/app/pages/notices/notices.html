@@ -1,0 +1,60 @@
+<app-page-hero
+  [eyebrow]="copy.eyebrow"
+  [title]="copy.title"
+  [titleAccent]="copy.titleAccent"
+  [lead]="copy.lead"
+/>
+
+<section class="section container" appReveal>
+  @if (notices().length === 0) {
+    <div class="note-panel">
+      <p>{{ t(copy.empty) }}</p>
+    </div>
+  } @else {
+    <!--
+      An ordered list, because a notice board is one: the order is the
+      information. A screen reader announces "list, 12 items" and the position
+      of each, which is what a sighted reader gets from the dates running down
+      the page.
+    -->
+    <ol class="notice-list">
+      @for (notice of notices(); track notice.id) {
+        <li class="notice" [class.is-pinned]="notice.pinned">
+          <div class="notice-meta">
+            <time [attr.datetime]="notice.postedAt">{{ formatDate(notice.postedAt) }}</time>
+
+            @if (isRecent(notice)) {
+              <!--
+                The mark is a word, not a colour and not a position, so it
+                survives being read aloud and being printed in black and
+                white. `aria-label` gives the longer form — "नई सूचना" —
+                because "नया" on its own, announced out of its visual context,
+                is an adjective with no noun.
+              -->
+              <span class="badge badge-new" [attr.aria-label]="t(copy.isNewLabel)">
+                {{ t(copy.isNew) }}
+              </span>
+            }
+
+            @if (notice.pinned) {
+              <span class="badge badge-pinned">{{ t(copy.pinned) }}</span>
+            }
+          </div>
+
+          <h2>{{ t(notice.title) }}</h2>
+          <p class="notice-body">{{ t(notice.body) }}</p>
+
+          @if (notice.attachment; as file) {
+            <a class="notice-attachment" [href]="file.url" target="_blank" rel="noopener">
+              <span class="notice-attachment-icon" aria-hidden="true">↓</span>
+              <span>
+                <strong>{{ file.name }}</strong>
+                <small>{{ t(copy.attachment) }} · {{ formatSize(file.sizeBytes) }}</small>
+              </span>
+            </a>
+          }
+        </li>
+      }
+    </ol>
+  }
+</section>

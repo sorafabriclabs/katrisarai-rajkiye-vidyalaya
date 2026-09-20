@@ -5,9 +5,10 @@ University, Patna. Angular 22, server-rendered, bilingual Hindi/English,
 deployed to Cloudflare Pages with the render shared between visitors at the
 edge.
 
-Five pages and a 404. There is no backend, no database and no API: the whole
-site is the route table in `src/app/app.routes.ts` and the copy in
-`src/app/content/`.
+Six public pages, an admin area and a 404. Most of the site is static — the
+route table in `src/app/app.routes.ts` and the copy in `src/app/content/` — and
+the notice board is not: it lives in D1, with uploaded files in R2 and
+Cloudflare Access in front of the page that writes to it.
 
 ```
 src/
@@ -16,6 +17,11 @@ src/
   server.ts                  Node entry — the default, and what `ng serve` uses
   server.cloudflare.ts       Cloudflare Worker entry — assets, edge cache, render
   edge/cache.ts              the caching rules, with no Cloudflare in them
+  edge/access.ts             Cloudflare Access: verifies the JWT, not a header
+  edge/api.ts                the notice API and /media
+  edge/notices.ts            the D1 queries, and the content stamp
+  edge/media.ts              R2: what may be uploaded, and how it is served
+  model/                     shapes shared by the Worker and the app
   styles.scss + styles/      one global stylesheet, one partial per region
   app/
     app.ts                   the shell: header, page, footer
@@ -23,12 +29,15 @@ src/
     app.routes.server.ts     how each is rendered, and the 404's status
     content/                 all the copy, as data, in both languages
     i18n/language.ts         the language signal, and the `Text` pair
+    notices/                 the notice store, and the browser-side resize
     layout/                  header, footer, page hero, student desk
-    pages/                   home, academics, faculty, students, contact, not-found
+    pages/                   home, notices, academics, faculty, students,
+                             contact, admin, not-found
     shared/                  the scroll-in reveal, and the head tags
+migrations/                  the D1 schema
 public/                      icons, robots.txt, sitemap.xml, the emblem, the profile PDF
 tools/cloudflare.deployment.mjs  build → restructure → deploy
-tools/icons.mjs              every icon, rendered from the college emblem
+tools/icons.mjs              icons: the seal for large, a drawn mark for the tab
 ```
 
 ## Day to day
@@ -49,12 +58,88 @@ npm run serve:ssr  # build, then serve it with Node — no Cloudflare involved
 | `npm run build:cf` | build for Cloudflare and restructure the output, without deploying |
 | `npm run preview`  | `build:cf`, then run the real Worker locally with `wrangler`       |
 | `npm run deploy`   | build, restructure, `wrangler pages deploy`                        |
-| `npm run icons`    | re-render every icon from `public/assets/college-mark.png`         |
+| `npm run icons`    | re-render every icon from the two sources in `public/assets/`      |
 | `npm run format`   | prettier                                                           |
 
 `npm run preview` is the one worth knowing: it runs `src/server.cloudflare.ts`
 in the same runtime Cloudflare does, with the same asset layer, so the edge
 cache and the 404 behave exactly as they will in production.
+
+## The notice board
+
+The office publishes notices at `/admin`. They appear on `/notices` and the
+three most recent appear on the home page, with a **नया / New** mark for
+sixty days (`NEW_FOR_DAYS` in `src/model/notice.ts`).
+
+### How a published notice reaches the page
+
+This is the part worth understanding, because it looks like magic and breaks
+like a cache.
+
+Every rendered page is held at the edge for a day, keyed by the deployment id.
+That is right for content that only changes on deploy and wrong for a notice
+board, so the key carries a second stamp — a number in the `settings` table
+that every write bumps. A publish therefore invalidates the edge by _not
+matching_ any key that exists: no purge call, no API token, no window in which
+the purge has not run yet.
+
+The stamp is read before the cache lookup, so it is memoised for fifteen
+seconds per isolate (`contentStamp` in `src/edge/notices.ts`). **A published
+notice is live within about fifteen seconds**, not instantly and not in a day.
+The admin page says so after every save.
+
+### First-time setup
+
+```sh
+# 1. The database
+npx wrangler d1 create katrisarai-notices
+#    → copy the database_id into wrangler.jsonc
+npx wrangler d1 migrations apply katrisarai-notices --remote
+
+# 2. The bucket for uploads
+npx wrangler r2 bucket create katrisarai-media
+
+# 3. Locally
+npx wrangler d1 migrations apply katrisarai-notices --local
+npm run preview
+```
+
+### Cloudflare Access
+
+Access is what makes the admin area an admin area. There is **no password in
+this codebase** and no session handling: Cloudflare does the login, and the
+Worker verifies the signed assertion on every write.
+
+In the dashboard, under Zero Trust → Access → Applications, add a self-hosted
+application covering `<your-domain>/admin*` and `<your-domain>/api/*`, with a
+policy allowing the staff who may publish. Then put the team domain and the
+application's **Audience (AUD) tag** into `wrangler.jsonc`:
+
+```jsonc
+"vars": {
+  "ACCESS_TEAM_DOMAIN": "yourteam.cloudflareaccess.com",
+  "ACCESS_AUD": "<the AUD tag from the Access application>"
+}
+```
+
+The AUD check is not optional. Without it, a token minted for _any_ other
+application in the same Zero Trust team is accepted here — see the comment at
+the top of `src/edge/access.ts`. Neither value is a secret.
+
+Until both are set, every write answers **500** with a message saying so,
+rather than 401 — a misconfigured deployment should not look like a login
+problem.
+
+### What the office can and cannot do
+
+Publish, edit, withdraw a notice; attach a PDF or an image; replace the banner
+photograph. Hindi is required on every notice and English is optional — where
+it is blank, English readers see the Hindi, which is better than a blank page.
+Uploads are capped at 10MB, limited to JPEG, PNG, WebP and PDF (**not** SVG,
+which is a script as much as an image), and stored under a hash of their own
+bytes so `/media/<key>` is immutable and cacheable for a year. Images are
+resized in the browser before upload, because a Worker cannot resize them and
+a 5MB photograph from a phone would otherwise be served to every visitor.
 
 ## Both languages
 

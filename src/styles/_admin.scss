@@ -1,0 +1,266 @@
+// The admin area.
+//
+// English-only and plainer than the rest of the site on purpose: it is a tool
+// for whoever maintains the college's website, not part of what a visitor
+// reads, and the serif display faces that suit a prospectus get in the way of
+// a form.
+
+.admin {
+  padding-block: 48px 90px;
+
+  h1 {
+    font-size: 38px;
+  }
+
+  h2 {
+    font-size: 21px;
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0;
+    margin-bottom: 16px;
+  }
+}
+
+.admin-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 28px;
+
+  p {
+    margin: 8px 0 0;
+    font-size: 15px;
+  }
+}
+
+.admin-who {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.admin-status {
+  padding: 14px 18px;
+  margin-bottom: 26px;
+  border-left: 3px solid var(--gold-line);
+  background: var(--wash-warm);
+  font-size: 15px;
+  color: var(--ink);
+
+  // Red reinforces the error, it does not carry it: the message itself says
+  // what went wrong, so this still works for a reader who cannot see the
+  // difference.
+  &.is-error {
+    border-left-color: #b3261e;
+    background: #fdf1f0;
+  }
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 48px;
+  align-items: start;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+}
+
+.admin-hint {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 18px;
+}
+
+.admin-form {
+  label {
+    display: block;
+    margin-bottom: 16px;
+
+    > span {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+  }
+
+  input[type='text'],
+  input[type='date'],
+  textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #c6d0d5;
+    border-radius: 3px;
+    background: #fff;
+    font-size: 15px;
+    line-height: 1.5;
+
+    &:focus-visible {
+      border-color: var(--gold-line);
+    }
+
+    // The invalid state is a border *and* the message in the status line.
+    // A red border alone says only that something is wrong somewhere.
+    &.is-invalid {
+      border-color: #b3261e;
+      background: #fdf1f0;
+    }
+  }
+
+  textarea {
+    resize: vertical;
+    font-family: inherit;
+  }
+
+  // Hindi fields are typed in Devanagari whatever the interface language is.
+  [lang='hi'] {
+    font-family: 'Noto Sans Devanagari', 'DM Sans', sans-serif;
+    font-size: 16px;
+  }
+}
+
+.admin-check {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+
+  > span {
+    margin: 0 !important;
+    font-weight: 500 !important;
+  }
+
+  input {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.admin-file {
+  margin: 20px 0 24px;
+}
+
+.admin-file-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.admin-file-current {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 14px;
+
+  a {
+    text-decoration: underline;
+  }
+}
+
+.admin-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding-top: 8px;
+}
+
+.admin-link {
+  border: 0;
+  background: none;
+  padding: 0;
+  font-size: 14px;
+  color: var(--muted);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.admin-side {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.admin-panel {
+  background: var(--wash);
+  border: 1px solid var(--line);
+  padding: 24px;
+
+  input[type='file'] {
+    font-size: 13px;
+    max-width: 100%;
+  }
+}
+
+.admin-banner {
+  width: 100%;
+  height: 130px;
+  object-fit: cover;
+  border-radius: 3px;
+  margin-bottom: 12px;
+}
+
+.admin-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 0;
+    border-top: 1px solid var(--line);
+
+    &:first-child {
+      border-top: 0;
+    }
+  }
+
+  strong {
+    display: block;
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  small {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+}
+
+.admin-list-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+
+  button {
+    border: 1px solid #c6d0d5;
+    background: #fff;
+    padding: 6px 12px;
+    border-radius: 3px;
+    font-size: 13px;
+    cursor: pointer;
+
+    &:hover {
+      border-color: var(--gold-line);
+    }
+
+    &.is-danger:hover {
+      border-color: #b3261e;
+      color: #b3261e;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}

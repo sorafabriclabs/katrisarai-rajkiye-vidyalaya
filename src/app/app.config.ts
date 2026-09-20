@@ -4,6 +4,7 @@ import {
   provideAppInitializer,
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
+import { provideHttpClient, withFetch } from '@angular/common/http';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 
@@ -14,6 +15,12 @@ import { Seo } from './shared/seo';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
+    /*
+     * Only the admin page makes HTTP calls; the public pages get their notices
+     * handed to them by the Worker through `REQUEST_CONTEXT`. `withFetch`
+     * because the Worker runtime has `fetch` and no `XMLHttpRequest`.
+     */
+    provideHttpClient(withFetch()),
     provideRouter(
       routes,
       /*
