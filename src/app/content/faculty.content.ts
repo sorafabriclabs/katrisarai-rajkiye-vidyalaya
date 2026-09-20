@@ -115,8 +115,8 @@ export const FACULTY = {
   office: {
     eyebrow: text('कार्यालय', 'COLLEGE OFFICE'),
     body: text(
-      'कार्यालयीय कार्यों के संचालन हेतु श्री भोला प्रसाद दिनचरिया लिपिक के रूप में कार्यरत हैं।',
-      'Office work is handled by Shri Bhola Prasad, Dinchariya Lipik.',
+      'कार्यालयीय कार्यों के संचालन हेतु श्री भोला प्रसाद दिनचर्या लिपिक के रूप में कार्यरत हैं।',
+      'Office work is handled by Shri Bhola Prasad, Dincharya Lipik.',
     ),
   },
 } as const;
