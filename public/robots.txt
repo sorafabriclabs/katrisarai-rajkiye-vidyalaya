@@ -1,0 +1,5 @@
+# Five pages, all of them public.
+User-agent: *
+Allow: /
+
+Sitemap: https://gdckatrisarai.ac.in/sitemap.xml

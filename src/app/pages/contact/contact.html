@@ -1,0 +1,55 @@
+<app-page-hero
+  [eyebrow]="campus.eyebrow"
+  [title]="campus.title"
+  [titleAccent]="campus.titleAccent"
+/>
+
+<section class="section container campus" appReveal>
+  <div>
+    <p>{{ t(campus.body) }}</p>
+
+    <div class="amenities">
+      @for (amenity of campus.amenities; track amenity.en) {
+        <span>{{ t(amenity) }}</span>
+      }
+    </div>
+
+    <div class="neighbours">
+      <span class="eyebrow">{{ t(campus.neighbours.eyebrow) }}</span>
+      <ul>
+        @for (neighbour of campus.neighbours.items; track neighbour.en) {
+          <li>{{ t(neighbour) }}</li>
+        }
+      </ul>
+    </div>
+  </div>
+
+  <!--
+    The address panel.
+
+    `<address>` rather than a div: this is the contact information for the
+    page's subject, which is the element's entire purpose and is what lets a
+    browser's reader mode and a search engine's parser find it.
+  -->
+  <address class="contact-panel">
+    <span class="eyebrow">{{ t(contact.eyebrow) }}</span>
+    <h2>{{ t(site.name) }}</h2>
+    <p>
+      {{ t(site.address.campus) }}<br />
+      {{ t(site.address.locality) }}
+    </p>
+
+    <hr />
+
+    <span class="contact-label">{{ t(contact.label) }}</span>
+    <!--
+      A `tel:` link, not a printed number. Most of this site's traffic is a
+      phone, and the difference between the two is whether reaching the
+      college is one tap or a copy, a switch and a paste.
+    -->
+    <a class="phone" [href]="'tel:' + site.phone">{{ site.phoneDisplay }}</a>
+    <a class="underlink" [href]="site.university.directory" target="_blank" rel="noopener">
+      {{ t(contact.directoryLink) }} <span aria-hidden="true">↗</span>
+    </a>
+  </address>
+</section>

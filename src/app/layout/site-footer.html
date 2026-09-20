@@ -1,0 +1,68 @@
+<footer class="site-footer">
+  <div class="container footer-top">
+    <div class="footer-brand">
+      <strong>{{ t(site.fullName) }}</strong>
+      <p class="secondary-language" lang="hi">{{ site.fullName.hi }}</p>
+      <span>{{ t(site.affiliation) }}</span>
+    </div>
+
+    @for (column of columns; track column.title.en) {
+      <div class="footer-column">
+        <div class="footer-title">{{ t(column.title) }}</div>
+        <div class="footer-links">
+          @for (link of column.links; track link.label.en) {
+            @if (link.href) {
+              <a
+                [href]="link.href"
+                [attr.target]="link.external ? '_blank' : null"
+                [attr.rel]="link.external ? 'noopener' : null"
+                >{{ t(link.label) }}
+                @if (link.external) {
+                  <span aria-hidden="true"> ↗</span>
+                }
+              </a>
+            } @else {
+              <a [routerLink]="link.path">{{ t(link.label) }}</a>
+            }
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="container footer-bottom">
+    <span>© {{ site.established }} {{ t(site.fullName) }}</span>
+
+    <!--
+      Where every fact on this site came from.
+
+      A <details> rather than a separate page: it is three sentences, and a
+      page for them would be a page nobody links to and nobody maintains. Open
+      it and the answer is there, on the page whose claim is being checked.
+    -->
+    <details class="sources">
+      <summary>{{ t(sources.summary) }}</summary>
+      <div>
+        <p>{{ t(sources.body) }}</p>
+        <p class="sources-links">
+          <a href="/college-profile.pdf" target="_blank" rel="noopener">{{ t(sources.profile) }}</a>
+          <span aria-hidden="true">·</span>
+          <a [href]="site.university.directory" target="_blank" rel="noopener">{{
+            t(sources.directory)
+          }}</a>
+        </p>
+        <p class="photo-credit">
+          {{ t(sources.photoCredit.lead) }}
+          <a [href]="sources.photoCredit.authorHref" target="_blank" rel="noopener">{{
+            t(sources.photoCredit.author)
+          }}</a
+          >,
+          <a [href]="sources.photoCredit.licenceHref" target="_blank" rel="noopener">{{
+            sources.photoCredit.licence
+          }}</a
+          >{{ t(sources.photoCredit.trail) }}
+        </p>
+      </div>
+    </details>
+  </div>
+</footer>

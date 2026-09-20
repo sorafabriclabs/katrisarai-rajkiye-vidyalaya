@@ -1,0 +1,91 @@
+<!--
+  The university bar.
+
+  It says who the college answers to, which on a government college's site is
+  the first thing a visitor checks and the thing a fake one gets wrong. The
+  language switch lives here rather than in the navigation because it applies
+  to the whole document, not to the page.
+-->
+<div class="utility">
+  <div class="container">
+    <span class="utility-affiliation">{{ t(site.affiliation) }}</span>
+
+    <a class="utility-link" [href]="site.university.home" target="_blank" rel="noopener"
+      >{{ t(ui.universitySite) }} <span aria-hidden="true">↗</span></a
+    >
+
+    <!--
+      Two buttons rather than a <select> or a toggle: the whole point is that
+      each option is legible *in its own script*, so a reader who cannot read
+      the other one can still find theirs. `aria-pressed` rather than
+      `aria-current` — this is a control that is on or off, not a location.
+
+      Hindi is first because it is the default and the majority reading.
+    -->
+    <div class="language-switch" role="group" [attr.aria-label]="t(ui.languageGroup)">
+      <button type="button" lang="hi" [attr.aria-pressed]="language() === 'hi'" (click)="use('hi')">
+        हिंदी
+      </button>
+      <button type="button" lang="en" [attr.aria-pressed]="language() === 'en'" (click)="use('en')">
+        English
+      </button>
+    </div>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="container identity">
+    <a class="brand" routerLink="/" [attr.aria-label]="t(ui.brandHome)">
+      <!--
+        The college's own emblem. `alt=""` because the link beside it already
+        carries the college's name — a screen reader announcing both reads the
+        name twice and the visitor learns nothing from the second.
+      -->
+      <img class="brand-mark" src="/assets/college-mark.png" alt="" width="58" height="58" />
+      <span class="brand-text">
+        <span class="brand-devanagari secondary-language" lang="hi">{{ site.fullName.hi }}</span>
+        <strong>{{ t(site.name) }}</strong>
+        <span class="brand-place">{{ t(site.place) }}</span>
+      </span>
+    </a>
+
+    <div class="est">
+      <img
+        class="university-mark"
+        src="/assets/university-mark.png"
+        [alt]="t(site.university.name)"
+        width="52"
+        height="58"
+      />
+      <span>{{ t(site.motto) }}</span>
+      <b>{{ t(site.promise) }}</b>
+    </div>
+  </div>
+
+  <nav class="container nav" [attr.aria-label]="t(ui.mainNavigation)">
+    <button
+      class="menu-toggle"
+      type="button"
+      aria-controls="nav-links"
+      [attr.aria-expanded]="menuOpen()"
+      (click)="toggleMenu()"
+    >
+      {{ t(ui.menu) }} <span aria-hidden="true">☰</span>
+    </button>
+
+    <div class="nav-links" id="nav-links" [class.open]="menuOpen()">
+      @for (link of navigation; track link.path) {
+        <a
+          [routerLink]="link.path"
+          [attr.aria-current]="isCurrentPage(link) ? 'page' : null"
+          (click)="closeMenu()"
+          >{{ t(link.label) }}</a
+        >
+      }
+    </div>
+
+    <a class="nav-cta" [href]="site.university.admissions" target="_blank" rel="noopener"
+      >{{ t(ui.admissionPortal) }} <span aria-hidden="true">↗</span></a
+    >
+  </nav>
+</header>

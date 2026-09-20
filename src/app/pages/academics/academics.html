@@ -1,0 +1,47 @@
+<app-page-hero
+  [eyebrow]="academics.eyebrow"
+  [title]="academics.title"
+  [titleAccent]="academics.titleAccent"
+/>
+
+<section class="section academic">
+  <div class="container">
+    <div class="section-top">
+      <p>
+        @for (line of academics.lead; track $index) {
+          {{ t(line) }}
+          @if (!$last) {
+            <br />
+          }
+        }
+      </p>
+    </div>
+
+    <div class="subjects" appReveal>
+      @for (subject of subjects; track subject.key) {
+        <article>
+          <span class="subject-no">{{ label(subject, $index) }}</span>
+          <h3>
+            {{ t(subject.name) }}
+            <span class="secondary-language" lang="hi">{{ subject.devanagari }}</span>
+          </h3>
+          <p>{{ t(subject.blurb) }}</p>
+        </article>
+      }
+    </div>
+
+    <div class="academic-foot">
+      <span>{{ t(academics.foot) }}</span>
+      <a class="underlink" [href]="site.university.home" target="_blank" rel="noopener">
+        {{ t(academics.footLink) }} <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="section container" appReveal>
+  <div class="note-panel">
+    <span class="eyebrow">{{ t(academics.future.eyebrow) }}</span>
+    <p>{{ t(academics.future.body) }}</p>
+  </div>
+</section>

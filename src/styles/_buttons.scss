@@ -1,0 +1,57 @@
+// The two things on this site that are pressed, and the one that is followed.
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 32px;
+  padding: 14px 23px;
+  font-size: 14px;
+  font-weight: 600;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+
+  @media (max-width: 760px) {
+    padding: 13px 15px;
+    gap: 18px;
+    font-size: 13px;
+  }
+}
+
+.gold {
+  background: var(--gold);
+  color: #143044;
+
+  &:hover {
+    background: #ffdda0;
+    color: var(--navy);
+  }
+}
+
+.text-link {
+  font-size: 14px;
+  font-weight: 500;
+
+  span {
+    margin-left: 14px;
+  }
+}
+
+// A link that reads as one: the border is what distinguishes it from the body
+// text around it, since the body text is already a different colour.
+.underlink {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 600;
+  border-bottom: 1px solid #a9b5bb;
+  padding-bottom: 5px;
+  transition: border-color 0.2s ease;
+
+  &:hover {
+    border-bottom-color: var(--gold-line);
+  }
+
+  span {
+    margin-left: 18px;
+  }
+}

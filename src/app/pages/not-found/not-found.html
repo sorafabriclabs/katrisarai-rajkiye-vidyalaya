@@ -1,0 +1,17 @@
+<app-page-hero
+  [eyebrow]="copy.eyebrow"
+  [title]="copy.title"
+  [titleAccent]="copy.titleAccent"
+  [lead]="copy.lead"
+/>
+
+<section class="section container">
+  <div class="note-panel">
+    <h2>{{ t(copy.heading) }}</h2>
+    <p>{{ t(copy.body) }}</p>
+    <a class="button gold" routerLink="/">
+      <span>{{ t(copy.action) }}</span>
+      <span aria-hidden="true">→</span>
+    </a>
+  </div>
+</section>

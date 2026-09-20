@@ -1,0 +1,28 @@
+// The palette and the two or three measurements everything else is drawn from.
+//
+// Navy and gold, which is what the college's own emblem is in, on white. It is
+// deliberately a light design: this site is read on cheap phones in daylight,
+// often outdoors, and a dark theme is the wrong answer to that.
+//
+// The typefaces are loaded from index.html rather than with an @import here:
+// an @import inside the stylesheet cannot start downloading until the
+// stylesheet itself has arrived, which puts the fonts two round trips behind
+// the page instead of one.
+
+:root {
+  --navy: #102d40;
+  --navy-deep: #071f2f;
+  --ink: #183243;
+  --gold: #ebc783;
+  // The gold above is a background colour. On white it fails contrast at any
+  // text size, so anything *written* in gold uses this instead — the same hue,
+  // dark enough to read. The two are separate tokens so that nobody has to
+  // remember which is which.
+  --gold-ink: #8b692f;
+  --gold-line: #c2a366;
+  --muted: #61717c;
+  --line: #dce2e4;
+  --wash: #f2f5f5;
+  --wash-warm: #f0f3f4;
+  --max: 1200px;
+}

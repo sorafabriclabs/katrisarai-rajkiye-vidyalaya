@@ -1,0 +1,286 @@
+// The university bar, the masthead, and the navigation.
+
+.utility {
+  background: var(--navy);
+  color: #dce5e9;
+  font-size: 13px;
+  padding: 9px 0;
+
+  .container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  a:hover {
+    color: var(--gold);
+  }
+}
+
+// The affiliation takes the slack, so the language switch stays hard right and
+// does not move as the sentence changes length between the two languages.
+.utility-affiliation {
+  flex: 1;
+}
+
+.language-switch {
+  display: flex;
+  gap: 3px;
+  border: 1px solid #71828d;
+  border-radius: 5px;
+  padding: 3px;
+  flex-shrink: 0;
+
+  button {
+    border: 0;
+    background: transparent;
+    color: #fff;
+    padding: 4px 11px;
+    // 30px plus the padding clears the 24px minimum tap target with room to
+    // spare. This is the control most likely to be pressed on a phone by
+    // someone who cannot read the label next to it, so it is the last place to
+    // save a few pixels.
+    min-height: 30px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  button[aria-pressed='true'] {
+    background: var(--gold);
+    color: var(--navy);
+  }
+}
+
+.identity {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 26px 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  &:hover {
+    color: inherit;
+  }
+}
+
+.brand-mark {
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.brand-devanagari {
+  font-size: 15px;
+  margin-bottom: 3px;
+}
+
+.brand-text strong {
+  display: block;
+  font:
+    30px 'Libre Caslon Display',
+    Georgia,
+    serif;
+  line-height: 1.3;
+  font-weight: 400;
+}
+
+.brand-place {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 2px;
+  margin-top: 5px;
+  color: var(--muted);
+}
+
+.est {
+  font-size: 12px;
+  text-align: right;
+
+  span {
+    font-size: 10px;
+    letter-spacing: 1.2px;
+    color: #78818a;
+    display: block;
+  }
+
+  b {
+    font-weight: 500;
+    font-size: 14px;
+    display: block;
+    margin-top: 6px;
+  }
+
+  // Below 1050px there is no room for the motto beside the brand, and it is
+  // the least load-bearing thing on the masthead.
+  @media (max-width: 1050px) {
+    display: none;
+  }
+}
+
+.university-mark {
+  width: 52px;
+  height: 58px;
+  object-fit: contain;
+  margin: 0 0 8px auto;
+}
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  border-top: 1px solid var(--line);
+  min-height: 57px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 31px;
+  font-size: 14px;
+  font-weight: 500;
+
+  a {
+    padding: 17px 0;
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.2s ease;
+  }
+
+  // The current page, from `aria-current` rather than from a class. The
+  // attribute has to be right for a screen reader anyway, so hanging the
+  // underline off it means the two can never disagree.
+  a[aria-current='page'] {
+    border-bottom-color: #b68d46;
+  }
+
+  @media (max-width: 1050px) {
+    gap: 20px;
+  }
+}
+
+.nav-cta {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  @media (max-width: 1050px) {
+    font-size: 12px;
+  }
+}
+
+.menu-toggle {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .utility {
+    font-size: 11px;
+
+    .container {
+      flex-wrap: wrap;
+      gap: 8px 12px;
+    }
+  }
+
+  // The university's own link goes first when the bar wraps: the affiliation
+  // and the language switch are what the bar is for, and three items on two
+  // lines on a 360px screen is a bar taller than the masthead.
+  .utility-link {
+    display: none;
+  }
+
+  .utility-affiliation {
+    min-width: 160px;
+  }
+
+  .identity {
+    padding: 20px 0;
+  }
+
+  .brand {
+    gap: 12px;
+  }
+
+  .brand-mark {
+    width: 48px;
+    height: 48px;
+  }
+
+  .brand-text strong {
+    font-size: 25px;
+  }
+
+  .brand-devanagari {
+    font-size: 12px;
+  }
+
+  .brand-place {
+    font-size: 9px;
+    letter-spacing: 1.2px;
+  }
+
+  .nav {
+    position: relative;
+    min-height: 53px;
+  }
+
+  .menu-toggle {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    border: 0;
+    background: none;
+    padding: 10px 0;
+    color: var(--navy);
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: -18px;
+    right: -18px;
+    background: #fff;
+    z-index: 10;
+    padding: 18px 25px;
+    box-shadow: 0 10px 20px rgba(16, 45, 64, 0.13);
+
+    &.open {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    a {
+      padding: 12px 0;
+    }
+
+    // The current page, marked down the side rather than underneath.
+    //
+    // In the bar the links sit in a row and an underline reads as an
+    // underline. Stacked in this panel they are full-width rows, and the same
+    // rule reads as a divider between two of them — pointing at the wrong
+    // link as often as the right one.
+    a[aria-current='page'] {
+      border-bottom-color: transparent;
+      border-left: 3px solid #b68d46;
+      padding-left: 12px;
+      margin-left: -15px;
+      font-weight: 600;
+    }
+  }
+
+  .nav-cta {
+    font-size: 13px;
+  }
+}

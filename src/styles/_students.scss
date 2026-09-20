@@ -1,0 +1,68 @@
+// The student resources page: three links on navy.
+
+.student-section {
+  background: var(--navy);
+  color: #fff;
+}
+
+.student-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 90px;
+
+  p {
+    color: #b9c9d2;
+    max-width: 440px;
+  }
+
+  @media (max-width: 1050px) {
+    gap: 40px;
+  }
+
+  @media (max-width: 760px) {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+.student-note {
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+.student-links {
+  a {
+    padding: 20px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    border-bottom: 1px solid #46606e;
+
+    &:first-child {
+      border-top: 1px solid #46606e;
+    }
+
+    &:hover {
+      color: var(--gold);
+    }
+  }
+
+  small {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 1.6px;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+
+  strong {
+    font-size: 18px;
+    font-weight: 500;
+  }
+
+  a > span:last-child {
+    font-size: 26px;
+    color: var(--gold);
+  }
+}

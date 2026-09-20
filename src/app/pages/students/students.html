@@ -1,0 +1,26 @@
+<app-page-hero
+  [eyebrow]="students.eyebrow"
+  [title]="students.title"
+  [titleAccent]="students.titleAccent"
+  [lead]="students.lead"
+/>
+
+<section class="student-section">
+  <div class="container section student-grid" appReveal>
+    <div>
+      <p class="student-note">{{ t(students.note) }}</p>
+    </div>
+
+    <div class="student-links">
+      @for (resource of resources; track resource.href) {
+        <a [href]="resource.href" target="_blank" rel="noopener">
+          <span>
+            <small>{{ t(resource.kind) }}</small>
+            <strong>{{ t(resource.title) }}</strong>
+          </span>
+          <span aria-hidden="true">↗</span>
+        </a>
+      }
+    </div>
+  </div>
+</section>

@@ -1,0 +1,22 @@
+{
+  "name": "राजकीय डिग्री महाविद्यालय, कतरीसराय, नालन्दा",
+  "short_name": "कतरीसराय महाविद्यालय",
+  "description": "पाटलिपुत्र विश्वविद्यालय, पटना की अंगीभूत इकाई। कला संकाय में स्नातक स्तर की पढ़ाई।",
+  "lang": "hi",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#102d40",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

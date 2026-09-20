@@ -1,0 +1,116 @@
+<!doctype html>
+<!--
+  `lang` is set to Hindi here and then kept in step by `Translator`, which
+  writes it during the render — so the document a crawler receives already
+  declares the language its text is actually in.
+-->
+<html lang="hi">
+  <head>
+    <meta charset="utf-8" />
+    <title>राजकीय डिग्री महाविद्यालय, कतरीसराय | नालन्दा</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#102d40" />
+
+    <!--
+      The per-page title, description, canonical URL and preview tags are
+      written by `Seo` from the route, during the render — so they are in the
+      document a crawler receives, not added after hydration. What is here is
+      only what is true of every page.
+    -->
+    <meta
+      name="description"
+      content="राजकीय डिग्री महाविद्यालय, कतरीसराय, नालन्दा: पाटलिपुत्र विश्वविद्यालय के अंतर्गत कला स्नातक विषय, शिक्षक एवं विद्यार्थी संसाधन।"
+    />
+    <meta property="og:site_name" content="राजकीय डिग्री महाविद्यालय, कतरीसराय" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://gdckatrisarai.ac.in/icon-512.png" />
+    <meta name="twitter:card" content="summary" />
+
+    <!--
+      Icons, all rendered from the college's emblem by `tools/icons.mjs`. The
+      .ico is linked explicitly rather than left to the browser's implicit
+      /favicon.ico request, so it is fetched with the rest of the head instead
+      of on a separate guess.
+    -->
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!--
+      Three families, and the only thing the page fetches from another origin.
+
+      Noto Sans Devanagari is not optional here the way a webfont usually is:
+      a device without a Devanagari face renders every Hindi string as boxes,
+      and that is the default reading of this site. `preconnect` opens the two
+      connections it needs — one for the stylesheet, one for the font files it
+      names — while the HTML is still being parsed; `display=swap` means the
+      text is readable in whatever the system has from the first paint rather
+      than invisible until these land.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Caslon+Display&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap"
+    />
+
+    <!--
+      Sections fade up as they are scrolled to, which means they start at
+      `opacity: 0` and are revealed by an IntersectionObserver. Without scripts
+      that observer never runs and the page is blank, so this cancels the
+      starting state for exactly that case. It cannot live in the stylesheet:
+      `<noscript>` is what the browser uses to decide whether it applies.
+    -->
+    <noscript>
+      <style>
+        .reveal {
+          opacity: 1 !important;
+          transform: none !important;
+        }
+      </style>
+    </noscript>
+
+    <!--
+      What this institution is, for a search engine's knowledge panel.
+
+      `CollegeOrUniversity` rather than the generic `Organization`, and
+      `parentOrganization` rather than a loose mention, because the single most
+      valuable thing this markup can establish is that the college is a real
+      constituent unit of a real university. Static because it is the same on
+      every page and none of it is derived from a route.
+
+      The address has no street or postcode: the campus is identified by the
+      school it shares, not by a numbered address, and inventing one to fill
+      the field would be worse than leaving it out.
+    -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "CollegeOrUniversity",
+        "name": "राजकीय डिग्री महाविद्यालय, कतरीसराय, नालन्दा",
+        "alternateName": "Government Degree College, Katrisarai, Nalanda",
+        "url": "https://gdckatrisarai.ac.in",
+        "logo": "https://gdckatrisarai.ac.in/icon-512.png",
+        "description": "A constituent unit of Patliputra University, Patna, offering undergraduate study in six arts subjects.",
+        "foundingDate": "2026",
+        "telephone": "+91-98350-70738",
+        "parentOrganization": {
+          "@type": "CollegeOrUniversity",
+          "name": "Patliputra University, Patna",
+          "url": "https://ppup.ac.in/"
+        },
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Katrisarai",
+          "addressRegion": "Bihar",
+          "addressCountry": "IN"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <app-root></app-root>
+  </body>
+</html>

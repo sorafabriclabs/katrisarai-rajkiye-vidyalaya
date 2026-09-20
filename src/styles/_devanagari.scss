@@ -1,0 +1,137 @@
+// What changes when the page is read in Hindi.
+//
+// Last in the cascade, because it overrides the type scale set by every
+// partial above it — which is the point. Devanagari and Latin do not share a
+// comfortable size, a comfortable line height, or a comfortable letter
+// spacing, and setting one script at the other's measurements is the single
+// most common way a bilingual site ends up looking careless in one language.
+//
+// Three things are different, and only these three:
+//
+//   1. **The family.** Libre Caslon Display has no Devanagari, so a heading
+//      set in it falls back per-glyph and comes out as two typefaces in one
+//      line. Headings switch wholesale to Noto Sans Devanagari.
+//
+//   2. **The size and the leading.** Devanagari carries marks above and below
+//      the baseline, so a line height that is generous for Latin is tight for
+//      it, and a 72px display size that reads as confident in Latin reads as
+//      shouting. Headings come down and open up.
+//
+//   3. **The letter spacing.** The tracking that makes a Latin eyebrow read as
+//      small caps pulls Devanagari conjuncts apart into separate marks. It
+//      goes to almost nothing.
+//
+// `html[lang]` is written by `Translator`, so all of this follows the language
+// switch with no class to toggle and no component that has to know about type.
+
+html[lang='hi'] {
+  body {
+    font-family: 'Noto Sans Devanagari', 'DM Sans', sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  .brand-text strong,
+  .facts dd,
+  .subjects h3,
+  .contact-panel h2,
+  .principal h2 {
+    font-family: 'Noto Sans Devanagari', sans-serif;
+    line-height: 1.45;
+    letter-spacing: 0;
+  }
+
+  h1 {
+    font-size: 55px;
+
+    @media (max-width: 760px) {
+      font-size: 42px;
+    }
+  }
+
+  h2,
+  .page-hero h1 {
+    font-size: 36px;
+
+    @media (max-width: 760px) {
+      font-size: 30px;
+    }
+  }
+
+  // The serif's italic does not exist here, and `<em>` on Devanagari should be
+  // a colour change and nothing else.
+  h1 em,
+  h2 em {
+    font-style: normal;
+  }
+
+  .brand-text strong {
+    font-size: 27px;
+
+    @media (max-width: 760px) {
+      font-size: 23px;
+    }
+  }
+
+  .subjects h3 {
+    font-size: 24px;
+
+    @media (max-width: 760px) {
+      font-size: 23px;
+    }
+  }
+
+  .principal h2,
+  .contact-panel h2 {
+    font-size: 24px;
+  }
+
+  .facts dd {
+    // The figures are Latin numerals in both languages, so they keep the
+    // serif — but the label under them is Devanagari and needs the room.
+    font-family: 'Libre Caslon Display', Georgia, serif;
+    line-height: 1.15;
+  }
+
+  .eyebrow,
+  .subject-no,
+  .brand-place,
+  .strip-label,
+  .footer-title,
+  .student-links small {
+    letter-spacing: 0.3px;
+  }
+
+  // The hero's fixed height is set for two short Latin lines. Hindi runs
+  // longer and wraps, so the photograph grows to fit the text rather than the
+  // text being clipped by the photograph.
+  .hero {
+    height: auto;
+    min-height: 650px;
+
+    @media (max-width: 760px) {
+      min-height: 600px;
+    }
+  }
+
+  .hero-content {
+    // Clears the caption strip pinned to the bottom of the hero, which the
+    // taller headline would otherwise run into.
+    padding-bottom: 110px;
+
+    @media (max-width: 760px) {
+      padding-bottom: 100px;
+    }
+  }
+
+  .hero-bottom {
+    line-height: 1.7;
+  }
+
+  .hero-actions {
+    @media (max-width: 760px) {
+      flex-wrap: wrap;
+    }
+  }
+}

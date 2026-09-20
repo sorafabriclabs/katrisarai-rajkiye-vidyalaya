@@ -1,0 +1,24 @@
+// The site's one stylesheet.
+//
+// Global rather than split into component styles, because the design is a set
+// of global class names and the pages reuse each other's furniture — `.eyebrow`
+// appears on every page inside five different components, and `.section`
+// appears on all of them. Scoping each to its component would mean five copies.
+//
+// Order is the cascade: tokens first so everything below resolves against
+// them, then the document, then the furniture, then one partial per region of
+// the site — and Devanagari last, because it is the one layer that overrides
+// everything above it.
+
+@use 'styles/tokens';
+@use 'styles/base';
+@use 'styles/buttons';
+@use 'styles/header';
+@use 'styles/footer';
+@use 'styles/sections';
+@use 'styles/home';
+@use 'styles/academics';
+@use 'styles/faculty';
+@use 'styles/students';
+@use 'styles/campus';
+@use 'styles/devanagari';

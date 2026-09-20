@@ -1,0 +1,32 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+
+  // The Cloudflare Pages project this deploys into — not the Angular project
+  // name, which is katrisarai-site.
+  //
+  // It must match the project that actually exists in the account, or
+  // `wrangler pages deploy` either fails with project-not-found or silently
+  // creates a second project that no domain points at. `wrangler pages project
+  // list` is the authority.
+  "name": "katrisarai-website",
+
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // The directory `wrangler pages deploy` uploads, and the same value that goes
+  // in the Cloudflare dashboard's "Build output directory" field.
+  //
+  // It is the *restructured* output: static files at the root, the SSR bundle
+  // under server/, and a generated _worker.js beside them. Point Cloudflare at
+  // the raw Angular output instead and there is no _worker.js, so the site
+  // serves as static files — no SSR, no edge cache, and no 404s.
+  //
+  // A sibling of dist/katrisarai-site, never a child: `ng build` wipes its own
+  // outputPath and would delete a nested directory, including one already
+  // prepared for deploy.
+  //
+  // `main` and `assets` are deliberately absent. Those are Workers Static
+  // Assets fields; under Pages they are not read at deploy time and their
+  // relative paths break `wrangler pages dev` when run from the repo root.
+  "pages_build_output_dir": "dist/katrisarai-site-cloudflare",
+}

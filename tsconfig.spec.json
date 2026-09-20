@@ -1,0 +1,15 @@
+/* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
+/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": [
+      "vitest/globals",
+      // `sitemap.spec.ts` reads public/sitemap.xml off disk to check it against
+      // the route table. Vitest runs under Node, so the builtins are there;
+      // this is only what tells the compiler so.
+      "node"
+    ]
+  },
+  "include": ["src/**/*.d.ts", "src/**/*.spec.ts"]
+}

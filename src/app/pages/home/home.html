@@ -1,0 +1,90 @@
+<section class="hero">
+  <!--
+    The one image the site loads eagerly, and the largest thing on the page.
+
+    `fetchpriority="high"` and no lazy loading: it *is* the largest contentful
+    paint, so deferring it defers the moment the page looks finished. Everything
+    else below the fold is either text or nothing.
+  -->
+  <img
+    class="hero-image"
+    [src]="hero.image.src"
+    [alt]="t(hero.image.alt)"
+    width="2200"
+    height="1235"
+    fetchpriority="high"
+  />
+  <div class="hero-shade"></div>
+
+  <div class="container hero-content">
+    <span class="eyebrow light">{{ t(hero.eyebrow) }}</span>
+    <h1>
+      @for (line of hero.lines; track $index) {
+        {{ t(line) }}<br />
+      }
+      <em>{{ t(hero.accent) }}</em>
+    </h1>
+    <p>
+      @for (line of hero.body; track $index) {
+        {{ t(line) }}
+        @if (!$last) {
+          <br />
+        }
+      }
+    </p>
+    <div class="hero-actions">
+      <a class="button gold" routerLink="/academics">
+        <span>{{ t(hero.primary) }}</span>
+        <span aria-hidden="true">↗</span>
+      </a>
+      <a class="text-link" href="#about">
+        {{ t(hero.secondary) }} <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="hero-bottom container">
+    <span lang="hi">{{ site.fullName.hi }}</span>
+    <span>{{ t(hero.image.caption) }}</span>
+  </div>
+</section>
+
+<app-student-desk />
+
+<section class="section container about" id="about" appReveal>
+  <div>
+    <span class="eyebrow">{{ t(about.eyebrow) }}</span>
+    <h2>
+      {{ t(about.title) }}<br />
+      <em>{{ t(about.titleAccent) }}</em>
+    </h2>
+  </div>
+
+  <div class="about-copy">
+    <p class="lead">{{ t(about.lead) }}</p>
+    @for (paragraph of about.body; track $index) {
+      <p>{{ t(paragraph) }}</p>
+    }
+    <a class="underlink" [href]="about.profileHref" target="_blank" rel="noopener">
+      {{ t(about.profileLink) }} <span aria-hidden="true">↗</span>
+    </a>
+  </div>
+
+  <!--
+    Four facts, each from the college profile or the university directory.
+
+    A <dl> rather than four divs: each is a label and its value, and that is
+    what the element is for. The label is written first, as `<dl>` requires,
+    and `column-reverse` in the stylesheet is what draws the figure above it —
+    so the reading order stays label-then-value while the eye still meets the
+    number first.
+  -->
+  <dl class="facts">
+    @for (fact of facts; track fact.label.en) {
+      <div>
+        <dt>{{ t(fact.label) }}</dt>
+        <dd>{{ fact.figure }}</dd>
+      </div>
+    }
+  </dl>
+</section>

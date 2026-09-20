@@ -1,0 +1,51 @@
+<app-page-hero
+  [eyebrow]="faculty.eyebrow"
+  [title]="faculty.title"
+  [titleAccent]="faculty.titleAccent"
+  [lead]="faculty.lead"
+/>
+
+<section class="section container faculty" appReveal>
+  <div>
+    <div class="principal">
+      <img
+        class="principal-photo"
+        [src]="principal.photo.src"
+        [alt]="t(principal.photo.alt)"
+        width="125"
+        height="155"
+        loading="lazy"
+      />
+      <div>
+        <span class="eyebrow">{{ t(principal.eyebrow) }}</span>
+        <h2>{{ t(principal.name) }}</h2>
+        <p class="secondary-language" lang="hi">{{ principal.devanagari }}</p>
+        <span>{{ t(principal.role) }}</span>
+      </div>
+    </div>
+
+    <div class="note-panel office">
+      <span class="eyebrow">{{ t(faculty.office.eyebrow) }}</span>
+      <p>{{ t(faculty.office.body) }}</p>
+    </div>
+  </div>
+
+  <div class="faculty-list">
+    @for (department of departments; track department.key) {
+      <details [open]="$first">
+        <summary>
+          <span>
+            {{ t(department.name) }}
+            <small class="secondary-language" lang="hi">{{ department.devanagari }}</small>
+          </span>
+          <span class="plus" aria-hidden="true">+</span>
+        </summary>
+        <ul class="names">
+          @for (member of department.members; track member.en) {
+            <li>{{ t(member) }}</li>
+          }
+        </ul>
+      </details>
+    }
+  </div>
+</section>
