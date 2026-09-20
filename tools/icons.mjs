@@ -2,14 +2,15 @@
 /**
  * tools/icons.mjs
  *
- * Renders every icon the site ships from the college's own emblem, so the
- * favicon, the home-screen icon and the mark in the masthead cannot drift
- * apart. Run it whenever `public/assets/college-mark.png` changes; never edit
- * an output by hand.
+ * Renders every icon the site ships. Run it whenever either source in
+ * `public/assets/` changes; never edit an output by hand.
  *
  *   node tools/icons.mjs
  *
- * The emblem is a colour seal on white and is wider than it is tall, so it is
+ * There are two sources and a size threshold between them — see `SEAL` and
+ * `ICON` below for why a downsampled seal cannot be a favicon.
+ *
+ * The seal is a colour image on white and is wider than it is tall, so it is
  * padded out to a square on white before anything is resized — an icon left
  * transparent is composited by iOS onto black, which puts a dark ring around a
  * seal whose own outer edge is navy.
@@ -21,13 +22,31 @@
  */
 
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const SOURCE = join(ROOT, 'public/assets/college-mark.png');
+
+/**
+ * The two sources, and why there are two.
+ *
+ * `college-mark.png` is the real seal — a tree, a lamp, a stupa, and the
+ * college's name set around the rim. It is the right image wherever there is
+ * room for it: the masthead at 84px, a home-screen tile at 180px and up.
+ *
+ * `college-icon.svg` is a drawn mark in the same colours: the seal's open
+ * book, and nothing else. It exists because a browser tab gives an icon 16 or
+ * 32 pixels, and at that size every element of the seal is under two pixels —
+ * downsampling it produces a gold-brown smudge, not a small logo. The only
+ * way to have a legible favicon is to draw one.
+ *
+ * The split is at 180px, which is where the seal's rim lettering starts to
+ * resolve.
+ */
+const SEAL = join(ROOT, 'public/assets/college-mark.png');
+const ICON = join(ROOT, 'public/assets/college-icon.svg');
 
 /**
  * The ground a padded icon sits on.
@@ -40,12 +59,17 @@ const GROUND = 'FFFFFF';
 /** The square canvas the mark is centred on before anything is resized. */
 const CANVAS = 1080;
 
-/** Every square icon the site links to, by edge length. */
-const SIZES = {
+/** The large icons, downsampled from the seal. */
+const SEAL_SIZES = {
   'public/icon-512.png': 512,
   'public/icon-192.png': 192,
   'public/apple-touch-icon.png': 180,
+};
+
+/** The tab-sized icons, rasterised from the drawn mark. */
+const ICON_SIZES = {
   'public/favicon-32x32.png': 32,
+  'public/favicon-16x16.png': 16,
 };
 
 const sips = (...args) => execFileSync('sips', args, { stdio: 'pipe' });
@@ -82,15 +106,40 @@ function icoFromPng(png, size) {
 
 const work = mkdtempSync(join(tmpdir(), 'katrisarai-icons-'));
 try {
-  // Square first, then down. Padding after a resize would round the mark's
-  // edges twice and soften the diagonals it is mostly made of.
+  // Square first, then down. Padding after a resize would round the seal's
+  // edges twice and soften the rim it is mostly made of.
   const square = join(work, 'square.png');
-  sips('-p', String(CANVAS), String(CANVAS), '--padColor', GROUND, SOURCE, '--out', square);
+  sips('-p', String(CANVAS), String(CANVAS), '--padColor', GROUND, SEAL, '--out', square);
 
-  for (const [output, size] of Object.entries(SIZES)) {
+  for (const [output, size] of Object.entries(SEAL_SIZES)) {
     sips('-z', String(size), String(size), square, '--out', join(ROOT, output));
-    console.log(`  ${output}  ${size}×${size}`);
+    console.log(`  ${output}  ${size}×${size}  (seal)`);
   }
+
+  // The drawn mark, rasterised straight from the SVG at each size rather than
+  // once and downsampled — `sips` renders the vector at the target resolution,
+  // so the book's edges stay crisp instead of being resampled twice.
+  for (const [output, size] of Object.entries(ICON_SIZES)) {
+    sips(
+      '-s',
+      'format',
+      'png',
+      '-z',
+      String(size),
+      String(size),
+      ICON,
+      '--out',
+      join(ROOT, output),
+    );
+    console.log(`  ${output}  ${size}×${size}  (drawn mark)`);
+  }
+
+  // The SVG itself, served to every browser that accepts one — which is all of
+  // them now bar old Safari. It is the only icon that is right at every size,
+  // including the 24px a pinned tab uses and the display scale factors none of
+  // the PNGs above are cut for.
+  copyFileSync(ICON, join(ROOT, 'public/icon.svg'));
+  console.log('  public/icon.svg     vector (drawn mark)');
 
   const favicon = join(ROOT, 'public/favicon.ico');
   writeFileSync(favicon, icoFromPng(readFileSync(join(ROOT, 'public/favicon-32x32.png')), 32));
@@ -99,4 +148,4 @@ try {
   rmSync(work, { recursive: true, force: true });
 }
 
-console.log('\n✅ Icons rendered from public/assets/college-mark.png');
+console.log('\n✅ Icons rendered — seal for 180px and up, drawn mark for the tab.');

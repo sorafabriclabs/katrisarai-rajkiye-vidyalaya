@@ -28,13 +28,23 @@
     <meta name="twitter:card" content="summary" />
 
     <!--
-      Icons, all rendered from the college's emblem by `tools/icons.mjs`. The
-      .ico is linked explicitly rather than left to the browser's implicit
+      Icons, all rendered by `tools/icons.mjs` — the drawn book mark for the
+      tab, the college's seal for the home screen. That split is the whole
+      point: the seal is illegible below about 180px, so a favicon cut from it
+      is a smudge. See `tools/icons.mjs`.
+
+      The SVG is first because a browser takes the last icon it understands,
+      so the order here is worst-supported to best. Old Safari stops at the
+      .ico, everything current uses the vector and never fetches the PNGs.
+
+      The .ico is linked explicitly rather than left to the browser's implicit
       /favicon.ico request, so it is fetched with the rest of the head instead
       of on a separate guess.
     -->
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
 
