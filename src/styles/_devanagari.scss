@@ -27,6 +27,93 @@
 html[lang='hi'] {
   body {
     font-family: 'Noto Sans Devanagari', 'DM Sans', sans-serif;
+    font-size: 17.5px;
+    line-height: 1.8;
+  }
+
+  // Body copy, one step up from the Latin scale.
+  //
+  // Not a preference — a correction. Devanagari spends part of its em above
+  // the shirorekha and part below the baseline on matras, so the letterforms
+  // themselves occupy less of the type size than Latin's do. Set at the same
+  // px value the two scripts do not look the same size; Devanagari looks
+  // smaller and reads harder, and the matras are the first thing to go.
+  //
+  // Every value here is an explicit px size from the partials above, raised
+  // by roughly a step. Only the sizes change — the layout is untouched, which
+  // is why these are listed rather than scaled with a single rule.
+  .page-hero-lead {
+    font-size: 19px;
+  }
+
+  .about-copy .lead {
+    font-size: 21.5px;
+  }
+
+  .hero-content p {
+    font-size: 17.5px;
+  }
+
+  .utility,
+  .nav-links,
+  .nav-cta,
+  .menu-toggle {
+    font-size: 15px;
+  }
+
+  .subjects p,
+  .section-top p,
+  .note-panel p,
+  .academic-foot,
+  .site-footer {
+    font-size: 15.5px;
+  }
+
+  .names li,
+  .principal p,
+  .contact-panel p,
+  .student-links strong {
+    font-size: 16.5px;
+  }
+
+  .faculty-list summary {
+    font-size: 19.5px;
+  }
+
+  .student-note {
+    font-size: 18.5px;
+  }
+
+  .amenities span,
+  .neighbours ul {
+    font-size: 14px;
+  }
+
+  .footer-bottom,
+  .sources p,
+  .footer-brand span {
+    font-size: 13.5px;
+  }
+
+  .eyebrow {
+    font-size: 12px;
+  }
+
+  .phone {
+    font-size: 23px;
+  }
+
+  @media (max-width: 760px) {
+    body {
+      font-size: 17px;
+    }
+
+    // The two-column subject grid is the one place a larger size costs
+    // something: at 360px each card is about 155px wide, and the blurb starts
+    // setting three words to a line.
+    .subjects p {
+      font-size: 14.5px;
+    }
   }
 
   h1,
