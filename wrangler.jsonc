@@ -56,18 +56,23 @@
   // Cloudflare Access. Neither is a secret: the team domain is public, and the
   // AUD tag identifies the application rather than authorising anything.
   //
-  // Blank until the Zero Trust application exists — blank rather than a
-  // placeholder hostname on purpose. `verifyAccess` checks for empty first and
-  // throws immediately, naming these two variables, so an unconfigured
-  // deployment answers a fast, explicit 500 on the admin API. A placeholder
-  // domain would instead send every admin request into a DNS lookup for a host
-  // that does not exist and fail slowly with nothing useful in it.
+  // The team domain is where Access publishes the public keys this Worker
+  // verifies tokens against. The AUD identifies the one application whose
+  // tokens are accepted — without that check, a token minted for any other
+  // Access application in the same team would be honoured here.
   //
-  // Either way it fails *closed*: while these are blank, every write is
-  // refused, so deploying without them is safe — the admin area simply does
-  // not work yet. See README → "Cloudflare Access".
+  // Blank either of them and `verifyAccess` throws immediately, so every write
+  // answers a 500 naming these two variables. It fails closed: a misconfigured
+  // deployment cannot become an open admin area.
+  //
+  // The Access application covers `<host>/admin` and nothing else. Not
+  // `/api/*`: Access matches on path rather than method, so that would also
+  // sit in front of the public `GET /api/notices`. It is unnecessary anyway —
+  // Access sets `CF_Authorization` for the whole domain, the admin page's
+  // fetches carry it, and `verifyAccess` reads the cookie as well as the
+  // header.
   "vars": {
-    "ACCESS_TEAM_DOMAIN": "",
-    "ACCESS_AUD": "",
+    "ACCESS_TEAM_DOMAIN": "frontend-q8r-pages.cloudflareaccess.com",
+    "ACCESS_AUD": "94616a3c094a3852c6ee6b371070cd0f6dc5ed79f1b04d753b0664825e3e1bb1",
   },
 }
